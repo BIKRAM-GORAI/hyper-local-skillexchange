@@ -67,7 +67,15 @@ class service_request(db.Model):
     is_inprogress=db.Column(db.Boolean, default=False)
     assigned_provider_id=db.Column(db.Integer, nullable=True)
     created_at=db.Column(db.DateTime, default=db.func.current_timestamp())
-    
+
+
+class bids(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    bid_amount=db.Column(db.Integer, nullable=False)
+    ser_req_id=db.Column(db.Integer, nullable=False)
+    con_id=db.Column(db.Integer, nullable=False)
+    prov_id=db.Column(db.Integer, nullable=False)
+    msg=db.Column(db.String(500), nullable=False)
 
 
 @app.route('/', methods=['GET', 'POST'])#login
@@ -196,6 +204,41 @@ def provider_dashboard():
     # print(calculate_distance(ser_req[0].con_latitude,ser_req[0].con_longitude,current_user_object.latitude,current_user_object.longitude))
     return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req)
 
+@app.route('/place_bid/<int:serv_id>',methods=['GET', 'POST'])
+def place_bid(serv_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == "POST":
+        bid_amount = request.form['bid_amount']
+        msg = request.form['msg']
+        ser_req_id = serv_id
+        service = service_request.query.filter_by(id=serv_id).first()
+        con_id = service.consumer_id
+        prov_id = session['user_id']
+        
+        new_bid = bids(
+            bid_amount=bid_amount,
+            ser_req_id=ser_req_id,
+            con_id=con_id,
+            prov_id=prov_id,
+            msg=msg
+        )
+
+        # Add to database
+        db.session.add(new_bid)
+        db.session.commit()
+
+        flash('Bid placed successfully!')
+        return redirect(url_for('provider_dashboard'))
+    
+
+    service=service_request.query.filter_by(id=serv_id).first()
+    return render_template('provider/place_bid.html',service=service)
+
+@app.route('/edit_bid')
+def edit_bid():
+    return render_template('provider/edit_bid.html')
 @app.route('/logout')
 def logout():
     session.clear()

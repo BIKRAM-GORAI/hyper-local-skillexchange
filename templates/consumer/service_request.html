@@ -12,7 +12,7 @@
   <form class="row g-3" method="POST" action="{{url_for('add_service_request')}}">
     <div class="col-md-6">
       <label for="inputEmail4" class="form-label">Service Title</label>
-      <input name="service_title" type="text" class="form-control" id="inputEmail4">
+      <input name="service_title" type="text" class="form-control" id="inputEmail4" required>
     </div>
     <div class="col-md-3">
       <label for="service_type" class="form-label">Service Type</label>
@@ -39,11 +39,11 @@
     <div class="mb-3">
       <label for="inputAddress" class="form-label">Service Description</label>
       <textarea name="service_desc" class="form-control" id="inputAddress" rows="3"
-        placeholder="Please describe your service in detail"></textarea>
+        placeholder="Please describe your service in detail" required></textarea>
     </div>
     <div class="col-md-2">
       <label for="inputMaxSlots" class="form-label">Budget</label>
-      <input name="budget" type="number" class="form-control" id="inputMaxSlots" placeholder="eg: 100">
+      <input name="budget" type="number" class="form-control" id="inputMaxSlots" placeholder="eg: 100" min="0" required>
     </div>
     <div class="mb-3">
       <label class="form-label">Select Your Location</label>
@@ -51,8 +51,8 @@
       <small class="text-muted">
         Click on the map to set your location
       </small>
-      <input type="hidden" name="latitude" id="latitude">
-      <input type="hidden" name="longitude" id="longitude">
+      <input type="hidden" name="latitude" id="latitude" required>
+      <input type="hidden" name="longitude" id="longitude" required>
 
     </div>
     <div class="col-12 text-center">

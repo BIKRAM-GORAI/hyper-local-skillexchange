@@ -39,8 +39,8 @@
   <div class="container"><!-- this is 4 columns grid -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
       <!--<div class=""row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"">, this is taken from gpt, it makes the grid responsive and g-4 means gap between rows and cols -->
-      {% for request in requests %}
-      {% if distance_km(request.con_latitude, request.con_longitude, user.latitude, user.longitude) <= 10 %}
+      {% for req in requests %}
+      {% if distance_km(req.con_latitude, req.con_longitude, user.latitude, user.longitude) <= 10 %}
         
       
       <div class="col"><!-- this is the column -->
@@ -49,11 +49,11 @@
 
         <div class="card" style="width: 18rem;"><!-- within the column, this is the column content, a card -->
           <div class="card-body text-center"><!-- card body -->
-            <h5 class="card-title">{{request.service_type}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{request.budget}}</h6>
-            <p class="card-text">{{request.desc}}</p>
-            <a href="/consumer/view-lot/1" class="card-link">View Bids</a>
-            <a href="/consumer/book-slot/1" class="card-link">Details</a>
+            <h5 class="card-title">{{req.service_type}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{req.budget}}</h6>
+            <p class="card-text">{{req.desc}}</p>
+            <a href="{{url_for('place_bid',serv_id=req.id)}}" class="btn btn-primary " role="button" >Place Bid</a>
+            <a href="{{url_for('edit_bid',serv_id=req.id)}}" class="btn btn-secondary " role="button" >Edit</a>
 
           </div>
         </div>

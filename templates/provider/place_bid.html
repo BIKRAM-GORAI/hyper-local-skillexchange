@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Place Bid</title>
+{% endblock head %}
+
+{% block body %}
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card" style="width: 50rem;"><!-- within the column, this is the column content, a card -->
+          <div class="card-body text-center"><!-- card body -->
+            <h5 class="card-title">{{service.service_type}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{service.budget}}</h6>
+            <p class="card-text">{{service.desc}}</p>
+
+
+          </div>
+        </div>
+    </div>
+    <form method="POST" action="{{ url_for('place_bid', serv_id=service.id) }}" class="position-fixed bottom-0 start-50 translate-middle-x m-3 z-3 bg-light p-3 rounded">
+        <div class="mb-3">
+            <label for="bid_amount" class="form-label">Bid Amount</label>
+            <input type="number" class="form-control" id="bid_amount" name="bid_amount" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label for="msg" class="form-label">Message</label>
+            <textarea class="form-control" id="msg" name="msg" rows="3" placeholder="Enter your bid message" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Place Bid</button>
+    </form>
+{% endblock body %}

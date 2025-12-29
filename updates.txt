@@ -33,3 +33,8 @@ changes to the counsumer dashboard and provider dashboard and service request.ht
 commit 8 Baidyanath
 time 2:00 am
 added new field in the register.html eg:service type for provider|| provider dashboard service request query based on provider/user skill and implementing logic for showing relevant services for the provider eg: under 10km
+
+
+commit 9 Debjeet Dey 
+time -- 2:30
+place bid button and place bid html page, new bids database and pushing bid data to bids database
