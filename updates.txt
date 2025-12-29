@@ -15,16 +15,21 @@ commit 4--Baidyanath Mahato
 
 
 
-commit 5 
+commit 5 Bikram
 time 12:30
 made the consumer dashboard and some changes to register 
 
 
-commit 6
+commit 6  Bikram
 time 1:00 am
 adding the request service on consumer dashboard
 
 
-commit 7
+commit 7 Ayush Maji
 time 1:30 am 
 changes to the counsumer dashboard and provider dashboard and service request.html 
+
+
+commit 8 Baidyanath
+time 2:00 am
+added new field in the register.html eg:service type for provider|| provider dashboard service request query based on provider/user skill and implementing logic for showing relevant services for the provider eg: under 10km

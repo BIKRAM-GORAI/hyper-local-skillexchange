@@ -2,6 +2,8 @@
 from flask import Flask, request, render_template, redirect, url_for, session, g, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from math import radians, cos, sin, asin, sqrt
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
@@ -9,6 +11,28 @@ db = SQLAlchemy(app)
 admin_email="admin@name.com"
 admin_password="admin123"
 app.secret_key = 'deb123'  # Keep this secret in production
+
+
+
+
+# 1. Define the distance calculation function (Haversine Formula)
+def calculate_distance(lat1, lon1, lat2, lon2):
+    if None in [lat1, lon1, lat2, lon2]:
+        return 99999 # Return a huge distance if data is missing
+    
+    # Convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # Haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers
+    return c * r
+
+# 2. Register it so Jinja can use it
+app.jinja_env.globals.update(distance_km=calculate_distance)
 
 class users(db.Model):
 
@@ -25,6 +49,7 @@ class users(db.Model):
 
     is_provider = db.Column(db.Boolean, default=False)
     is_consumer = db.Column(db.Boolean, default=False)
+    user_skill=db.Column(db.String(20), nullable=True)
     # is_admin = db.Column(db.Boolean, default=False)
 
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -56,8 +81,8 @@ def login():
             session['user_id'] = user.id
             flash('Logged in successfully!')
             print('login suck')
-            print(user.id)
-            print(session['user_id'])
+            # print(user.id)
+            # print(session['user_id'])
             if user.is_consumer==True:
                 print('consumer')
                 return redirect(url_for('consumer_dashboard'))  # Redirect to home/dashboard; adjust as needed
@@ -78,7 +103,8 @@ def register():
         role = request.form['role']
         lat = request.form['latitude']
         lng = request.form['longitude']
-
+        skill=request.form.get('service_type')
+        print("Skill:",skill)
         # Hash the password
         password_hash = generate_password_hash(password)
 
@@ -96,6 +122,7 @@ def register():
             longitude=float(lng),
             is_provider=is_provider,
             is_consumer=is_consumer,
+            user_skill=skill
             # is_admin=is_admin
         )
 
@@ -158,10 +185,15 @@ def provider_dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     id=session['user_id']
+    print("id:",id)
     current_user_object = users.query.get(id)
-    ser_req=service_request.query.filter_by(consumer_id=id).all()
+    print(current_user_object.user_skill)
+    ser_req=service_request.query.filter_by(service_type=current_user_object.user_skill)
     # print(ser_req)
+    # print(ser_req[0].service_type,ser_req[1].service_type)
     # print(ser_req[0].service_title,ser_req[0].service_type)
+    # print(current_user_object.user_skill,ser_req[0].service_type)
+    # print(calculate_distance(ser_req[0].con_latitude,ser_req[0].con_longitude,current_user_object.latitude,current_user_object.longitude))
     return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req)
 
 @app.route('/logout')
@@ -199,6 +231,10 @@ def logout():
 
 # ---review model
 
+
+# with app.app_context():
+#     users.__table__.drop(db.engine)
+#     print("Table dropped successfully.")
 
 # with app.app_context():
 #     service_request.__table__.drop(db.engine)

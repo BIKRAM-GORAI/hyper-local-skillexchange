@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% block head %}
 <title>register</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 {% endblock head %}
+
 {% block body %}
 <h1>User Signup</h1>
 <div class="container">
-    <form method="POST" action="{{ url_for('register') }}"> <!--action tells where to submit the form data at -->
+    <form method="POST" action="{{ url_for('register') }}">
         <div class="mb-3">
             <label for="EmailID1" class="form-label">Email Id</label>
             <input name="email" type="email" class="form-control" id="EmailID1" aria-describedby="emailHelp">
-            <!-- aria-describedby ta niye dekhte hobe -->
         </div>
         <div class="mb-3">
             <label for="CreatePassword1" class="form-label">Password</label>
@@ -19,6 +20,7 @@
             <label for="FullName1" class="form-label">Full Name</label>
             <input name="fullname" type="text" class="form-control" id="FullName1">
         </div>
+
         <div class="mb-3">
             <label class="form-label">Select Your Location</label>
             <div id="map" style="height: 300px; border-radius: 8px;"></div>
@@ -27,27 +29,80 @@
             </small>
             <input type="hidden" name="latitude" id="latitude">
             <input type="hidden" name="longitude" id="longitude">
-
         </div>
 
-
         <div class="mb-3">
-            <select name="role" class="form-select" aria-label="role" required>
+            <label for="roleSelect" class="form-label">Role</label>
+            <select name="role" class="form-select" id="roleSelect" aria-label="role" required>
                 <option value="" selected disabled>Select Role</option>
                 <option value="consumer">Consumer</option>
                 <option value="provider">Provider</option>
             </select>
         </div>
 
+        <div class="mb-3">
+            <label for="serviceSelect" class="form-label">Service Type</label>
+            <select name="service_type" class="form-select" id="serviceSelect" aria-label="service type">
+                <option value="" selected disabled>Choose Service Type</option>
+                <option value="Electrician">Electrician</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Carpenter">Carpenter</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Mason">Mason</option>
+                <option value="Technician">Technician</option>
+                <option value="Welder">Welder</option>
+                <option value="Maid">Maid</option>
+                <option value="Labour">Labour</option>
+                <option value="Barber">Barber</option>
+                <option value="General Physician">General Physician</option>
+                <option value="Consultant">Consultant</option>
+                <option value="Priest">Priest</option>
+                <option value="House Cleaning">House Cleaning</option>
+                <option value="Chef">Chef</option>
+            </select>
+        </div>
+
+        <br>
         <button type="submit" class="btn btn-primary">Register</button>
         <div class="mb-3">
             <a href="{{ url_for('login')}}">Already have an account?</a>
         </div>
     </form>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+    // --- ROLE SELECTION LOGIC ---
+    const roleSelect = document.getElementById('roleSelect');
+    const serviceSelect = document.getElementById('serviceSelect');
+
+    // Run this function whenever the role changes
+    roleSelect.addEventListener('change', function () {
+        if (this.value === 'consumer') {
+            // Disable service selection
+            serviceSelect.disabled = true;
+            // Remove 'required' attribute so form can submit without it
+            serviceSelect.required = false;
+            // Reset value to empty
+            serviceSelect.value = "";
+        } else if (this.value === 'provider') {
+            // Enable service selection
+            serviceSelect.disabled = false;
+            // Make it required
+            serviceSelect.required = true;
+        }
+    });
+
+    // Run once on page load to ensure correct state (e.g. if browser cached the input)
+    // Initialize as disabled by default until user picks a role
+    if (roleSelect.value === 'provider') {
+        serviceSelect.disabled = false;
+    } else {
+        serviceSelect.disabled = true;
+    }
+
+    // --- MAP LOGIC ---
     // Default center (India)
     var map = L.map('map').setView([22.9734, 78.6569], 5);
 
@@ -74,7 +129,7 @@
         document.getElementById('longitude').value = lng;
     });
 
-    // Auto-detect user location (optional but recommended)
+    // Auto-detect user location
     map.locate({ setView: true, maxZoom: 16 });
 
     map.on('locationfound', function (e) {
