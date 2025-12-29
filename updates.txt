@@ -5,5 +5,10 @@ commit 1 --Bikram Gorai
 Time -- 2:36   Major changes in app.py
                made the database for users storage
                made the register route so that register page may work
+commit 2 --  Bikram Gorai  
 
-commit 2 --  Bikram Gorai
+time -- 11pm made the register and login page
+commit --3
+
+time 12:00--made the provider dashboard consumer dashboard and app.py and made database code for service request
+commit 4--Baidyanath Mahato
