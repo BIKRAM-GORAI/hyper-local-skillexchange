@@ -202,7 +202,10 @@ def provider_dashboard():
     # print(ser_req[0].service_title,ser_req[0].service_type)
     # print(current_user_object.user_skill,ser_req[0].service_type)
     # print(calculate_distance(ser_req[0].con_latitude,ser_req[0].con_longitude,current_user_object.latitude,current_user_object.longitude))
-    return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req)
+    my_bids=bids.query.filter_by(prov_id=id).all()
+
+    bid_request_ids=[bid.ser_req_id for bid in my_bids]
+    return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req,bid_request_ids=bid_request_ids)
 
 @app.route('/place_bid/<int:serv_id>',methods=['GET', 'POST'])
 def place_bid(serv_id):

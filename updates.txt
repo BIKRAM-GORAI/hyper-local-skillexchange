@@ -38,3 +38,8 @@ added new field in the register.html eg:service type for provider|| provider das
 commit 9 Debjeet Dey 
 time -- 2:30
 place bid button and place bid html page, new bids database and pushing bid data to bids database
+
+
+commit 10 Debjeet Dey
+time -- 2:45
+place bids updates on provider dashboard, and shows a tick mark thats indicates that bid has been placed

@@ -40,29 +40,42 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
       <!--<div class=""row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"">, this is taken from gpt, it makes the grid responsive and g-4 means gap between rows and cols -->
       {% for req in requests %}
-      {% if distance_km(req.con_latitude, req.con_longitude, user.latitude, user.longitude) <= 10 %}
-        
-      
-      <div class="col"><!-- this is the column -->
+      {% if distance_km(req.con_latitude, req.con_longitude, user.latitude, user.longitude) <= 10 %} <div class="col">
+        <!-- this is the column -->
 
 
 
         <div class="card" style="width: 18rem;"><!-- within the column, this is the column content, a card -->
           <div class="card-body text-center"><!-- card body -->
+            {% if req.id in bid_request_ids %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-check2-circle" viewBox="0 0 16 16">
+              <path
+                d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0" />
+              <path
+                d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z" />
+            </svg>
+            {% endif %}
             <h5 class="card-title">{{req.service_type}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{req.budget}}</h6>
             <p class="card-text">{{req.desc}}</p>
-            <a href="{{url_for('place_bid',serv_id=req.id)}}" class="btn btn-primary " role="button" >Place Bid</a>
-            <a href="{{url_for('edit_bid',serv_id=req.id)}}" class="btn btn-secondary " role="button" >Edit</a>
+            {% if req.id in bid_request_ids %}
 
+            <button class="btn btn-primary disabled" disabled>Place Bid</button>
+
+            <a href="{{url_for('edit_bid', serv_id=req.id)}}" class="btn btn-secondary" role="button">Edit</a>
+            {% else %}
+            <a href="{{url_for('place_bid', serv_id=req.id)}}" class="btn btn-primary" role="button">Place Bid</a>
+            <a href="#" class="btn btn-secondary disabled d-none" role="button">Edit</a>
+            {% endif %}
           </div>
         </div>
 
-      </div>
-      {% endif %}
-      {% endfor %}
     </div>
+    {% endif %}
+    {% endfor %}
   </div>
+</div>
 </div>
 
 
