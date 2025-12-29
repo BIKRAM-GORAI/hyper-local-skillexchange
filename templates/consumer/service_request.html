@@ -1,22 +1,24 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>Add Service Request</title>
+<title>Add Service Request</title>
 {% endblock head %}
 
 {% block body %}
-    <div class="alert alert-secondary text-center" role="alert"><strong><h3>New Parking Lot</h3></strong></div>
+<div class="alert alert-secondary text-center" role="alert"><strong>
+    <h3>New Parking Lot</h3>
+  </strong></div>
 
 <div class="container mt-5">
-    <form class="row g-3" method="POST" action="{{url_for('add_service_request')}}">
-  <div class="col-md-6">
-    <label for="inputEmail4" class="form-label">Service Title</label>
-    <input name="service_title" type="text" class="form-control" id="inputEmail4">
-  </div>
-  <div class="col-md-3">
-    <label for="service_type" class="form-label">Service Type</label>
-    <select name="service_type" class="form-select" aria-label="role" required>
+  <form class="row g-3" method="POST" action="{{url_for('add_service_request')}}">
+    <div class="col-md-6">
+      <label for="inputEmail4" class="form-label">Service Title</label>
+      <input name="service_title" type="text" class="form-control" id="inputEmail4">
+    </div>
+    <div class="col-md-3">
+      <label for="service_type" class="form-label">Service Type</label>
+      <select name="service_type" class="form-select" aria-label="role" required>
         <option value="" selected disabled>Choose Service Type</option>
-        
+
         <option value="Electrician">Electrician</option>
         <option value="Plumber">Plumber</option>
         <option value="Carpenter">Carpenter</option>
@@ -32,21 +34,71 @@
         <option value="Priest">Priest</option>
         <option value="House Cleaning">House Cleaning</option>
         <option value="Chef">Chef</option>
-    </select>
-</div>
-  <div class="mb-3">
-  <label for="inputAddress" class="form-label">Service Description</label>
-  <textarea name="service_desc" class="form-control" id="inputAddress" rows="3" placeholder="Please describe your service in detail"></textarea>
-</div> 
-  <div class="col-md-2">
-    <label for="inputMaxSlots" class="form-label">Budget</label>
-    <input name="budget" type="number" class="form-control" id="inputMaxSlots" placeholder="eg: 100">
-  </div>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="inputAddress" class="form-label">Service Description</label>
+      <textarea name="service_desc" class="form-control" id="inputAddress" rows="3"
+        placeholder="Please describe your service in detail"></textarea>
+    </div>
+    <div class="col-md-2">
+      <label for="inputMaxSlots" class="form-label">Budget</label>
+      <input name="budget" type="number" class="form-control" id="inputMaxSlots" placeholder="eg: 100">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Select Your Location</label>
+      <div id="map" style="height: 300px; border-radius: 8px;"></div>
+      <small class="text-muted">
+        Click on the map to set your location
+      </small>
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
 
-  <div class="col-12 text-center">
-    <button type="submit" class="btn btn-primary">Submit</button>
-    <a href="{{url_for('consumer_dashboard')}}" class="btn btn-secondary">Cancel</a>
-  </div>
-</form>
+    </div>
+    <div class="col-12 text-center">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <a href="{{url_for('consumer_dashboard')}}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+<script>
+  // Default center (India)
+  var map = L.map('map').setView([22.9734, 78.6569], 5);
+
+  // Tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var marker;
+
+  // Click to select location
+  map.on('click', function (e) {
+    var lat = e.latlng.lat;
+    var lng = e.latlng.lng;
+
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    marker = L.marker([lat, lng]).addTo(map);
+
+    // Store values in hidden inputs
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+  });
+
+  // Auto-detect user location (optional but recommended)
+  map.locate({ setView: true, maxZoom: 16 });
+
+  map.on('locationfound', function (e) {
+    if (!marker) {
+      marker = L.marker(e.latlng).addTo(map);
+      document.getElementById('latitude').value = e.latlng.lat;
+      document.getElementById('longitude').value = e.latlng.lng;
+    }
+  });
+</script>
 {% endblock body %}

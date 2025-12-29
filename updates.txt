@@ -23,3 +23,8 @@ made the consumer dashboard and some changes to register
 commit 6
 time 1:00 am
 adding the request service on consumer dashboard
+
+
+commit 7
+time 1:30 am 
+changes to the counsumer dashboard and provider dashboard and service request.html 

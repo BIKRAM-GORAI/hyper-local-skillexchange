@@ -32,6 +32,8 @@ class users(db.Model):
 class service_request(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     consumer_id=db.Column(db.Integer, nullable=False)
+    con_latitude = db.Column(db.Float, nullable=False)
+    con_longitude = db.Column(db.Float, nullable=False)
     service_title=db.Column(db.String(200), nullable=False)
     service_type=db.Column(db.String(50), nullable=False)
     budget=db.Column(db.Integer, nullable=False)
@@ -129,6 +131,8 @@ def add_service_request():
         service_type=request.form['service_type']
         service_desc = request.form['service_desc']
         budget = request.form['budget']
+        lat=request.form['latitude']
+        long=request.form['longitude']
         
         
         new_service_request = service_request(
@@ -136,7 +140,9 @@ def add_service_request():
             service_type=service_type,
             budget=budget,
             desc=service_desc,
-            consumer_id=consumer_id
+            consumer_id=consumer_id,
+            con_latitude = lat,
+            con_longitude=long
         )
 
         # Add to database
@@ -149,7 +155,14 @@ def add_service_request():
 
 @app.route('/provider_dashboard')
 def provider_dashboard():
-    return render_template('provider/provider_dashboard.html')
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    id=session['user_id']
+    current_user_object = users.query.get(id)
+    ser_req=service_request.query.filter_by(consumer_id=id).all()
+    # print(ser_req)
+    # print(ser_req[0].service_title,ser_req[0].service_type)
+    return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req)
 
 @app.route('/logout')
 def logout():
@@ -187,7 +200,9 @@ def logout():
 # ---review model
 
 
-
+# with app.app_context():
+#     service_request.__table__.drop(db.engine)
+#     print("Table dropped successfully.")
 
 
 
