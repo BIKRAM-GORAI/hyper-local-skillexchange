@@ -1,3 +1,4 @@
+# from app import app, db, service_request
 from flask import Flask, request, render_template, redirect, url_for, session, g, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,7 +11,6 @@ admin_password="admin123"
 app.secret_key = 'deb123'  # Keep this secret in production
 
 class users(db.Model):
-
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -29,7 +29,6 @@ class users(db.Model):
 
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-
 class service_request(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     consumer_id=db.Column(db.Integer, nullable=False)
@@ -41,7 +40,8 @@ class service_request(db.Model):
     is_inprogress=db.Column(db.Boolean, default=False)
     assigned_provider_id=db.Column(db.Integer, nullable=True)
     created_at=db.Column(db.DateTime, default=db.func.current_timestamp())
-     
+    
+
 
 @app.route('/', methods=['GET', 'POST'])#login
 def login():
@@ -54,6 +54,8 @@ def login():
             session['user_id'] = user.id
             flash('Logged in successfully!')
             print('login suck')
+            print(user.id)
+            print(session['user_id'])
             if user.is_consumer==True:
                 print('consumer')
                 return redirect(url_for('consumer_dashboard'))  # Redirect to home/dashboard; adjust as needed
@@ -106,7 +108,41 @@ def register():
 
 @app.route('/consumer_dashboard')
 def consumer_dashboard():
-    return render_template('consumer/consumer_dashboard.html')
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    id=session['user_id']
+    current_user_object = users.query.get(id)
+    return render_template('consumer/consumer_dashboard.html',user=current_user_object)
+
+@app.route('/add_requests',methods=['GET', 'POST'])
+def add_service_request():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    id=session['user_id']
+    con_user = users.query.get(id)
+    consumer_id=con_user.id
+    if request.method == "POST":
+        service_title = request.form['service_title']
+        service_type=request.form['service_type']
+        service_desc = request.form['service_desc']
+        budget = request.form['budget']
+        
+        
+        new_service_request = service_request(
+            service_title=service_title,
+            service_type=service_type,
+            budget=budget,
+            desc=service_desc,
+            consumer_id=consumer_id
+        )
+
+        # Add to database
+        db.session.add(new_service_request)
+        db.session.commit()
+
+        flash('Service Added Successfully')
+        return redirect(url_for('consumer_dashboard'))
+    return render_template('consumer/service_request.html')
 
 @app.route('/provider_dashboard')
 def provider_dashboard():

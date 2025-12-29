@@ -5,10 +5,11 @@
 {% block body %}
 <h1>User Signup</h1>
 <div class="container">
-    <form method="POST" action="{{ url_for('register') }}"> 
+    <form method="POST" action="{{ url_for('register') }}"> <!--action tells where to submit the form data at -->
         <div class="mb-3">
             <label for="EmailID1" class="form-label">Email Id</label>
             <input name="email" type="email" class="form-control" id="EmailID1" aria-describedby="emailHelp">
+            <!-- aria-describedby ta niye dekhte hobe -->
         </div>
         <div class="mb-3">
             <label for="CreatePassword1" class="form-label">Password</label>
@@ -28,13 +29,16 @@
             <input type="hidden" name="longitude" id="longitude">
 
         </div>
+
+
         <div class="mb-3">
             <select name="role" class="form-select" aria-label="role" required>
-                <option selected>Select Role</option>
+                <option value="" selected disabled>Select Role</option>
                 <option value="consumer">Consumer</option>
                 <option value="provider">Provider</option>
             </select>
         </div>
+
         <button type="submit" class="btn btn-primary">Register</button>
         <div class="mb-3">
             <a href="{{ url_for('login')}}">Already have an account?</a>
@@ -44,11 +48,17 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
     </script>
 <script>
+    // Default center (India)
     var map = L.map('map').setView([22.9734, 78.6569], 5);
+
+    // Tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
     var marker;
+
+    // Click to select location
     map.on('click', function (e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
@@ -59,10 +69,12 @@
 
         marker = L.marker([lat, lng]).addTo(map);
 
-       
+        // Store values in hidden inputs
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
     });
+
+    // Auto-detect user location (optional but recommended)
     map.locate({ setView: true, maxZoom: 16 });
 
     map.on('locationfound', function (e) {

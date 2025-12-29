@@ -12,3 +12,10 @@ commit --3
 
 time 12:00--made the provider dashboard consumer dashboard and app.py and made database code for service request
 commit 4--Baidyanath Mahato
+
+
+
+commit 5 
+time 12:30
+
+made the consumer dashboard and some changes to register 
