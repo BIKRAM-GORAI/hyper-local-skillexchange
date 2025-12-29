@@ -112,7 +112,10 @@ def consumer_dashboard():
         return redirect(url_for('login'))
     id=session['user_id']
     current_user_object = users.query.get(id)
-    return render_template('consumer/consumer_dashboard.html',user=current_user_object)
+    ser_req=service_request.query.filter_by(consumer_id=id).all()
+    # print(ser_req)
+    # print(ser_req[0].service_title,ser_req[0].service_type)
+    return render_template('consumer/consumer_dashboard.html',user=current_user_object,requests=ser_req)
 
 @app.route('/add_requests',methods=['GET', 'POST'])
 def add_service_request():

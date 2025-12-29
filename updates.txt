@@ -17,5 +17,9 @@ commit 4--Baidyanath Mahato
 
 commit 5 
 time 12:30
-
 made the consumer dashboard and some changes to register 
+
+
+commit 6
+time 1:00 am
+adding the request service on consumer dashboard
