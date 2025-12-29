@@ -1,1 +1,9 @@
 Time -11:10  initialised the project and added the updates.txt
+commit 1 --Bikram Gorai
+
+
+Time -- 2:36   Major changes in app.py
+               made the database for users storage
+               made the register route so that register page may work
+
+commit 2 --  Bikram Gorai
