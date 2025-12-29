@@ -52,6 +52,29 @@ def register():
         return redirect(url_for('login'))
     return render_template('auth/register.html')
 
+
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        user = users.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
+            session['user_id'] = user.id
+            flash('Logged in successfully!')
+            print('login suck')
+            if user.is_consumer==True:
+                print('consumer')
+                return redirect(url_for('consumer_dashboard'))  
+            else:
+                return redirect(url_for('provider_dashboard'))
+        else:
+            flash('Invalid email or password.')
+    
+    return render_template('auth/login.html')
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

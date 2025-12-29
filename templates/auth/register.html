@@ -1,1 +1,77 @@
-<h1>This is the registration page</h1>
+{% extends 'base.html' %}
+{% block head %}
+<title>register</title>
+{% endblock head %}
+{% block body %}
+<h1>User Signup</h1>
+<div class="container">
+    <form method="POST" action="{{ url_for('register') }}"> 
+        <div class="mb-3">
+            <label for="EmailID1" class="form-label">Email Id</label>
+            <input name="email" type="email" class="form-control" id="EmailID1" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+            <label for="CreatePassword1" class="form-label">Password</label>
+            <input name="password" type="password" class="form-control" id="CreatePassword1">
+        </div>
+        <div class="mb-3">
+            <label for="FullName1" class="form-label">Full Name</label>
+            <input name="fullname" type="text" class="form-control" id="FullName1">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Select Your Location</label>
+            <div id="map" style="height: 300px; border-radius: 8px;"></div>
+            <small class="text-muted">
+                Click on the map to set your location
+            </small>
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+
+        </div>
+        <div class="mb-3">
+            <select name="role" class="form-select" aria-label="role" required>
+                <option selected>Select Role</option>
+                <option value="consumer">Consumer</option>
+                <option value="provider">Provider</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+        <div class="mb-3">
+            <a href="{{ url_for('login')}}">Already have an account?</a>
+        </div>
+    </form>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+<script>
+    var map = L.map('map').setView([22.9734, 78.6569], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    var marker;
+    map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if (marker) {
+            map.removeLayer(marker);
+        }
+
+        marker = L.marker([lat, lng]).addTo(map);
+
+       
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+    });
+    map.locate({ setView: true, maxZoom: 16 });
+
+    map.on('locationfound', function (e) {
+        if (!marker) {
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('latitude').value = e.latlng.lat;
+            document.getElementById('longitude').value = e.latlng.lng;
+        }
+    });
+</script>
+
+{% endblock body %}

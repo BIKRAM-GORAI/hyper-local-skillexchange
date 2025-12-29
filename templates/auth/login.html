@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Login</title>
+{% endblock head %}
+{% block body %}
+    <h1>User Login</h1>
+
+    {% if warning %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Invalid email or password</strong> Retry!
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+    <div class="container">
+       <form method="POST">
+  <div class="mb-3">
+    <label for="RegisteredEmailID1" class="form-label">Registered Email Id</label>
+    <input name="email" type="email" class="form-control" id="RegisteredEmailID1" aria-describedby="emailHelp">
+  </div>
+  <div class="mb-3">
+    <label for="InputPassword1" class="form-label">Password</label>
+    <input name="password" type="password" class="form-control" id="InputPassword1">
+    <div id="passwordHelp" class="form-text">We'll never share our password with anyone else.</div>
+  </div>
+  <div class="mb-3 form-check">
+    <a href="{{ url_for('register')}}">Create Account?</a>
+  </div>
+  <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+{% endblock body %}
