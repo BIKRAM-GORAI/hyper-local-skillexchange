@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>My Current Jobs</title>
+{% endblock head %}
+{% block body %}
+
+<div class="container mt-5">
+    <div class="alert alert-info text-center">
+        <h3>My Active Jobs</h3>
+        <p>These requests have been assigned to you. Please contact the customer to proceed.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+
+        {% if jobs|length == 0 %}
+        <div class="col-12 text-center mt-5">
+            <h5 class="text-muted">You have no active jobs right now.</h5>
+            <a href="{{ url_for('provider_dashboard') }}" class="btn btn-primary mt-3">Go to Marketplace</a>
+        </div>
+        {% endif %}
+
+        {% for req, consumer in jobs %}
+        <div class="col">
+            <div class="card border-primary mb-3 shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <span>{{ req.service_title }}</span>
+                    <span class="badge bg-light text-dark">{{ req.service_type }}</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Customer: {{ consumer.full_name }}</h5>
+                    <p class="card-text">
+                        <strong>Description:</strong> {{ req.desc }}<br>
+                        <strong>Agreed Budget:</strong> ₹{{ req.budget }}
+                    </p>
+
+                    <hr>
+
+                    <h6>Contact Details:</h6>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item">
+                            <i class="bi bi-envelope"></i> Email: <a href="mailto:{{ consumer.email }}">{{
+                                consumer.email }}</a>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-geo-alt"></i> Location Coords: {{ req.con_latitude }}, {{ req.con_longitude
+                            }}
+                        </li>
+                    </ul>
+
+                    <div class="d-grid gap-2">
+                        <a href="https://www.google.com/maps?q={{ req.con_latitude }},{{ req.con_longitude }}"
+                            target="_blank" class="btn btn-outline-success">
+                            Open Location in Google Maps
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    Job started on: {{ req.created_at.strftime('%Y-%m-%d') }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}

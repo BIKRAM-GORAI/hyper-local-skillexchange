@@ -43,3 +43,15 @@ place bid button and place bid html page, new bids database and pushing bid data
 commit 10 Debjeet Dey
 time -- 2:45
 place bids updates on provider dashboard, and shows a tick mark thats indicates that bid has been placed
+
+
+commit 11 Debjeet Dey
+time 9:00 am
+some major changes
+->consumer view bids and accept bids functionality
+done
+->provider can see their active jobs in my works section and can get redirected to Google maps for location
+done
+->consumer can now view assigned job in my orders section, with active indication, and now can mark 'as completed' when completed
+done
+

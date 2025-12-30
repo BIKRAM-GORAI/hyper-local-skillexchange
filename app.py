@@ -148,10 +148,12 @@ def consumer_dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     id=session['user_id']
+    print(id)
     current_user_object = users.query.get(id)
     ser_req=service_request.query.filter_by(consumer_id=id).all()
     # print(ser_req)
     # print(ser_req[0].service_title,ser_req[0].service_type)
+    print("count: ",len(ser_req),ser_req)
     return render_template('consumer/consumer_dashboard.html',user=current_user_object,requests=ser_req)
 
 @app.route('/add_requests',methods=['GET', 'POST'])
@@ -187,6 +189,97 @@ def add_service_request():
         flash('Service Added Successfully')
         return redirect(url_for('consumer_dashboard'))
     return render_template('consumer/service_request.html')
+
+@app.route('/view_bids/<int:req_id>')
+def view_bids(req_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # 1. Get the Service Request details
+    req = service_request.query.get_or_404(req_id)
+    
+    # Security: Ensure the logged-in consumer owns this request
+    if req.consumer_id != session['user_id']:
+        flash("You are not authorized to view this request.")
+        return redirect(url_for('consumer_dashboard'))
+
+    # 2. Fetch Bids AND the Provider Name
+    # We join 'bids' with 'users' to get the full_name of the provider
+    # Result is a list of tuples: [(BidObject, UserObject), ...]
+    results = db.session.query(bids, users).join(users, bids.prov_id == users.id).filter(bids.ser_req_id == req_id).all()
+    
+    return render_template('consumer/view_bids.html', service=req, bid_data=results)
+
+@app.route('/accept_bid/<int:bid_id>')
+def accept_bid(bid_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # 1. Get the bid
+    winning_bid = bids.query.get_or_404(bid_id)
+    
+    # 2. Get the related service request
+    req = service_request.query.get(winning_bid.ser_req_id)
+
+    # Security check
+    if req.consumer_id != session['user_id']:
+        flash("Unauthorized action.")
+        return redirect(url_for('consumer_dashboard'))
+
+    # 3. Update the Service Request
+    req.assigned_provider_id = winning_bid.prov_id
+    req.is_active = False       # Remove from the "Available" pool for other providers
+    req.is_inprogress = True    # Mark as ongoing
+    
+    # 4. (Optional) You might want to update the budget to the final agreed bid amount
+    # req.budget = winning_bid.bid_amount 
+
+    db.session.commit()
+    
+    flash(f'Bid accepted! Provider ID {winning_bid.prov_id} has been assigned.')
+    return redirect(url_for('consumer_dashboard'))
+
+
+@app.route('/my_orders')
+def my_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    con_id = session['user_id']
+    
+    # Fetch requests created by this consumer that are EITHER active OR in progress
+    # We join with 'users' (provider) to show who is doing the work
+    # We use an outer join (isouter=True) because some requests might not have a provider yet
+    
+    orders = db.session.query(service_request, users).outerjoin(users, service_request.assigned_provider_id == users.id)\
+        .filter(service_request.consumer_id == con_id).all()
+        
+    return render_template('consumer/my_orders.html', orders=orders)
+
+@app.route('/close_order/<int:req_id>')
+def close_order(req_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    req = service_request.query.get_or_404(req_id)
+    
+    # Security check
+    if req.consumer_id != session['user_id']:
+        flash("Unauthorized")
+        return redirect(url_for('consumer_dashboard'))
+        
+    # Mark as completed (You might want a new boolean 'is_completed' in your model, 
+    # but for now, we can just set is_inprogress=False and is_active=False)
+    
+    req.is_inprogress = False
+    req.is_active = False
+    
+    # Optional: Delete the request or move to a 'history' table if you prefer
+    # For now, we keep it but it's just 'inactive'
+    
+    db.session.commit()
+    flash("Order marked as completed!")
+    return redirect(url_for('my_orders'))
 
 @app.route('/provider_dashboard')
 def provider_dashboard():
@@ -239,9 +332,53 @@ def place_bid(serv_id):
     service=service_request.query.filter_by(id=serv_id).first()
     return render_template('provider/place_bid.html',service=service)
 
-@app.route('/edit_bid')
-def edit_bid():
-    return render_template('provider/edit_bid.html')
+@app.route('/edit_bid/<int:serv_id>', methods=['GET', 'POST'])
+def edit_bid(serv_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    prov_id = session['user_id']
+    
+    # 1. Fetch the specific bid made by this provider for this service request
+    current_bid = bids.query.filter_by(ser_req_id=serv_id, prov_id=prov_id).first()
+    
+    # Safety check: if bid doesn't exist, send them back
+    if not current_bid:
+        flash("Bid not found.")
+        return redirect(url_for('provider_dashboard'))
+
+    # 2. Fetch service details (just to show the title/budget to the user again)
+    service = service_request.query.get(serv_id)
+
+    # 3. Handle Form Submission (POST)
+    if request.method == 'POST':
+        current_bid.bid_amount = request.form['bid_amount']
+        current_bid.msg = request.form['msg']
+        
+        db.session.commit() # Save changes to the existing record
+        
+        flash('Bid updated successfully!')
+        return redirect(url_for('provider_dashboard'))
+
+    # 4. Handle Page Load (GET) - Pass 'current_bid' to pre-fill the form
+    return render_template('provider/edit_bid.html', service=service, bid=current_bid)
+
+@app.route('/my_works')
+def my_works():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    prov_id = session['user_id']
+    
+    # Fetch requests where this provider is the 'assigned_provider_id'
+    # We join with 'users' to get the Consumer's name and email
+    jobs = db.session.query(service_request, users).join(users, service_request.consumer_id == users.id)\
+        .filter(service_request.assigned_provider_id == prov_id)\
+        .filter(service_request.is_inprogress == True).all() 
+        
+    return render_template('provider/my_works.html', jobs=jobs)
+
+
 @app.route('/logout')
 def logout():
     session.clear()
