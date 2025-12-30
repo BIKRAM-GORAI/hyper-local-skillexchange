@@ -69,3 +69,8 @@ commit 14 AYUSH MAJI
 TIME - 12:00
 my orders ui change 
 bids indicating spinner in consumer dashboard and ui improvement in provider dashboard 
+
+
+commit 15 Bikram Gorai
+time 12:10 
+updated the requirement.txt
