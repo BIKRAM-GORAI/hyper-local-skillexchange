@@ -5,7 +5,7 @@
 
 {% block body %}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+<nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm sticky-top">
   <div class="container">
     <a class="navbar-brand fw-bold text-primary" href="#">
       <i class="bi bi-tools"></i> Welcome, {{user.full_name}}
@@ -34,8 +34,8 @@
   
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h3 class="fw-bold text-dark">Available Jobs Nearby</h3>
-      <p class="text-muted">Requests within 10km of your location matching your skills.</p>
+      <h3 class="fw-bold text-body-emphasis">Available Jobs Nearby</h3>
+      <p class="text-body-secondary">Requests within 10km of your location matching your skills.</p>
     </div>
   </div>
 
@@ -59,7 +59,7 @@
         <div class="card h-100 shadow-sm border-0 position-relative transition-hover">
           
           {% if req.id in bid_request_ids %}
-          <div class="position-absolute top-0 end-0 m-3">
+          <div class="position-absolute top-0 end-0 m-2 z-2">
             <span class="badge bg-success rounded-pill shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16">
                 <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
@@ -70,19 +70,26 @@
           </div>
           {% endif %}
 
-          <div class="card-body pt-4">
-            <h5 class="card-title fw-bold text-dark">{{ req.service_type }}</h5>
+          <div class="card-header bg-transparent border-0 pt-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-primary rounded-pill">{{ req.service_type }}</span>
+              <span class="text-body-secondary small">{{ req.created_at.strftime('%b %d') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title fw-bold text-body">{{ req.service_title }}</h5>
             
             <h6 class="card-subtitle mb-3 text-success fw-bold">
-              Budget: ${{ req.budget }}
+              Budget: ₹{{ req.budget }}
             </h6>
             
-            <p class="card-text text-muted">
+            <p class="card-text text-body-secondary text-truncate-3" style="min-height: 3rem;">
               {{ req.desc }}
             </p>
           </div>
 
-          <div class="card-footer bg-transparent border-top-0 pb-4">
+          <div class="card-footer bg-transparent border-top-0 pb-3">
             <div class="d-grid gap-2">
               {% if req.id in bid_request_ids %}
                 <button class="btn btn-secondary disabled" disabled>Bid Placed</button>
@@ -102,8 +109,8 @@
       {% endif %}
     {% else %}
       <div class="col-12 text-center py-5">
-        <h4 class="text-muted">No jobs currently available.</h4>
-        <p>Check back later for new requests.</p>
+        <h4 class="text-body-secondary">No jobs currently available.</h4>
+        <p class="text-body-secondary">Check back later for new requests.</p>
       </div>
     {% endfor %}
 

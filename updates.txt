@@ -63,3 +63,9 @@ time 10:30 am
 commit 13 BIKRAM GORAI
 TIME - 11:00
 ui changes in viewbids editbids myworks placebid
+
+
+commit 14 AYUSH MAJI
+TIME - 12:00
+my orders ui change 
+bids indicating spinner in consumer dashboard and ui improvement in provider dashboard 

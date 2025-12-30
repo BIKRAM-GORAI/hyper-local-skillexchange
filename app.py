@@ -3,7 +3,7 @@ from flask import Flask, request, render_template, redirect, url_for, session, g
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from math import radians, cos, sin, asin, sqrt
-
+from sqlalchemy.sql import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
@@ -76,6 +76,16 @@ class bids(db.Model):
     con_id=db.Column(db.Integer, nullable=False)
     prov_id=db.Column(db.Integer, nullable=False)
     msg=db.Column(db.String(500), nullable=False)
+
+
+class reviews(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    req_id = db.Column(db.Integer, nullable=False)
+    consumer_id = db.Column(db.Integer, nullable=False)
+    provider_id = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer, nullable=False) 
+    comment = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 
 @app.route('/', methods=['GET', 'POST'])#login
@@ -153,8 +163,18 @@ def consumer_dashboard():
     ser_req=service_request.query.filter_by(consumer_id=id).all()
     # print(ser_req)
     # print(ser_req[0].service_title,ser_req[0].service_type)
+    active_req_ids = [r.id for r in ser_req if r.is_active] 
+    
+    requests_with_bids = []
+    if active_req_ids:
+        # Query bids only for these ACTIVE requests
+        active_bids_query = db.session.query(bids.ser_req_id)\
+                        .filter(bids.ser_req_id.in_(active_req_ids))\
+                        .distinct().all()
+        
+        requests_with_bids = [r[0] for r in active_bids_query]
     print("count: ",len(ser_req),ser_req)
-    return render_template('consumer/consumer_dashboard.html',user=current_user_object,requests=ser_req)
+    return render_template('consumer/consumer_dashboard.html',user=current_user_object,requests=ser_req,requests_with_bids=requests_with_bids)
 
 @app.route('/add_requests',methods=['GET', 'POST'])
 def add_service_request():
@@ -190,25 +210,39 @@ def add_service_request():
         return redirect(url_for('consumer_dashboard'))
     return render_template('consumer/service_request.html')
 
+from sqlalchemy.sql import func # Import this at the top
+
 @app.route('/view_bids/<int:req_id>')
 def view_bids(req_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # 1. Get the Service Request details
     req = service_request.query.get_or_404(req_id)
-    
-    # Security: Ensure the logged-in consumer owns this request
     if req.consumer_id != session['user_id']:
-        flash("You are not authorized to view this request.")
+        flash("Unauthorized")
         return redirect(url_for('consumer_dashboard'))
 
-    # 2. Fetch Bids AND the Provider Name
-    # We join 'bids' with 'users' to get the full_name of the provider
-    # Result is a list of tuples: [(BidObject, UserObject), ...]
+    # Fetch Bids and Providers
     results = db.session.query(bids, users).join(users, bids.prov_id == users.id).filter(bids.ser_req_id == req_id).all()
     
-    return render_template('consumer/view_bids.html', service=req, bid_data=results)
+    # NEW: Calculate Stats for each Provider in the list
+    provider_stats = {} 
+    
+    for bid, provider in results:
+        # 1. Count completed jobs (where they were assigned and it is not active/inprogress)
+        # Note: Depending on your logic, you might just count rows in the 'reviews' table for confirmed completions
+        job_count = reviews.query.filter_by(provider_id=provider.id).count()
+        
+        # 2. Calculate Average Rating
+        avg_rating_query = db.session.query(func.avg(reviews.rating)).filter(reviews.provider_id == provider.id).scalar()
+        avg_rating = round(avg_rating_query, 1) if avg_rating_query else 0
+        
+        provider_stats[provider.id] = {
+            'count': job_count,
+            'rating': avg_rating
+        }
+    
+    return render_template('consumer/view_bids.html', service=req, bid_data=results, stats=provider_stats)
 
 @app.route('/accept_bid/<int:bid_id>')
 def accept_bid(bid_id):
@@ -256,30 +290,41 @@ def my_orders():
         
     return render_template('consumer/my_orders.html', orders=orders)
 
-@app.route('/close_order/<int:req_id>')
+@app.route('/close_order/<int:req_id>', methods=['GET', 'POST'])
 def close_order(req_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
     req = service_request.query.get_or_404(req_id)
     
-    # Security check
-    if req.consumer_id != session['user_id']:
-        flash("Unauthorized")
-        return redirect(url_for('consumer_dashboard'))
+    # Check if form is submitted (The Review)
+    if request.method == "POST":
+        rating = int(request.form['rating'])
+        comment = request.form['comment']
         
-    # Mark as completed (You might want a new boolean 'is_completed' in your model, 
-    # but for now, we can just set is_inprogress=False and is_active=False)
-    
-    req.is_inprogress = False
-    req.is_active = False
-    
-    # Optional: Delete the request or move to a 'history' table if you prefer
-    # For now, we keep it but it's just 'inactive'
-    
-    db.session.commit()
-    flash("Order marked as completed!")
-    return redirect(url_for('my_orders'))
+        # 1. Create Review
+        new_review = reviews(
+            req_id=req.id,
+            consumer_id=session['user_id'],
+            provider_id=req.assigned_provider_id,
+            rating=rating,
+            comment=comment
+        )
+        db.session.add(new_review)
+        
+        # 2. Close the Order
+        req.is_inprogress = False
+        req.is_active = False
+        
+        db.session.commit()
+        
+        flash("Job completed and review submitted!")
+        return redirect(url_for('my_orders'))
+
+    # If GET request, show the Review Page
+    # Pass the provider name so we can say "How was your experience with X?"
+    provider = users.query.get(req.assigned_provider_id)
+    return render_template('consumer/leave_review.html', req=req, provider=provider)
 
 @app.route('/provider_dashboard')
 def provider_dashboard():

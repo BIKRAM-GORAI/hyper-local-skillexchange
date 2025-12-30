@@ -18,7 +18,7 @@
 </nav>
 
 <div class="container pb-5">
-    
+
     <div class="row justify-content-center mb-5">
         <div class="col-lg-10">
             <div class="card shadow border-0">
@@ -29,18 +29,18 @@
                             <h3 class="fw-bold text-dark mb-3">{{ service.service_title }}</h3>
                         </div>
                         {% if service.assigned_provider_id %}
-                            <span class="badge bg-success fs-6 rounded-pill px-3 py-2">
-                                <i class="bi bi-check-circle-fill"></i> Provider Assigned
-                            </span>
+                        <span class="badge bg-success fs-6 rounded-pill px-3 py-2">
+                            <i class="bi bi-check-circle-fill"></i> Provider Assigned
+                        </span>
                         {% else %}
-                            <span class="badge bg-warning text-dark fs-6 rounded-pill px-3 py-2">
-                                <i class="bi bi-hourglass-split"></i> Accepting Bids
-                            </span>
+                        <span class="badge bg-warning text-dark fs-6 rounded-pill px-3 py-2">
+                            <i class="bi bi-hourglass-split"></i> Accepting Bids
+                        </span>
                         {% endif %}
                     </div>
-                    
+
                     <p class="text-muted mb-4">{{ service.desc }}</p>
-                    
+
                     <div class="d-flex align-items-center p-3 bg-light rounded">
                         <span class="text-muted me-2">Original Budget:</span>
                         <span class="fw-bold text-dark fs-5">₹{{ service.budget }}</span>
@@ -53,28 +53,38 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <h4 class="fw-bold mb-4">Received Offers ({{ bid_data|length }})</h4>
-            
+
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                
+
                 {% if bid_data|length == 0 %}
-                    <div class="col-12">
-                        <div class="alert alert-info text-center py-4">
-                            <h4>No bids yet</h4>
-                            <p class="mb-0">Wait for providers to see your request.</p>
-                        </div>
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-4">
+                        <h4>No bids yet</h4>
+                        <p class="mb-0">Wait for providers to see your request.</p>
                     </div>
+                </div>
                 {% endif %}
 
                 {% for bid, provider in bid_data %}
                 <div class="col">
-                    <div class="card h-100 shadow-sm border-0 
+                    <div
+                        class="card h-100 shadow-sm border-0 
                         {% if service.assigned_provider_id == provider.id %} border-success border-2 shadow {% elif service.assigned_provider_id %} opacity-75 {% endif %}">
-                        
+
                         <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
-                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 50px; height: 50px;">
                                 <i class="bi bi-person-fill fs-4 text-secondary"></i>
                             </div>
                             <h5 class="fw-bold mb-0">{{ provider.full_name }}</h5>
+                            <div class="mb-2">
+                                <span class="text-warning fw-bold">
+                                    {{ stats[provider.id]['rating'] }} <i class="bi bi-star-fill"></i>
+                                </span>
+                                <span class="text-muted small ms-2">
+                                    ({{ stats[provider.id]['count'] }} jobs done)
+                                </span>
+                            </div>
                             <small class="text-muted">Service Provider</small>
                         </div>
 
@@ -88,21 +98,20 @@
                         <div class="card-footer bg-transparent border-0 pb-4">
                             <div class="d-grid gap-2">
                                 {% if not service.assigned_provider_id %}
-                                    <a href="{{ url_for('accept_bid', bid_id=bid.id) }}" 
-                                       class="btn btn-primary btn-lg"
-                                       onclick="return confirm('Are you sure you want to hire {{ provider.full_name }} for ₹{{ bid.bid_amount }}?');">
-                                       Accept Offer
-                                    </a>
+                                <a href="{{ url_for('accept_bid', bid_id=bid.id) }}" class="btn btn-primary btn-lg"
+                                    onclick="return confirm('Are you sure you want to hire {{ provider.full_name }} for ₹{{ bid.bid_amount }}?');">
+                                    Accept Offer
+                                </a>
 
                                 {% elif service.assigned_provider_id == provider.id %}
-                                    <button class="btn btn-success btn-lg disabled" disabled>
-                                        <i class="bi bi-check-lg"></i> Hired
-                                    </button>
+                                <button class="btn btn-success btn-lg disabled" disabled>
+                                    <i class="bi bi-check-lg"></i> Hired
+                                </button>
 
                                 {% else %}
-                                    <button class="btn btn-outline-secondary disabled" disabled>
-                                        Not Selected
-                                    </button>
+                                <button class="btn btn-outline-secondary disabled" disabled>
+                                    Not Selected
+                                </button>
                                 {% endif %}
                             </div>
                         </div>

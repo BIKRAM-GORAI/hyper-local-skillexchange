@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Rate Service</title>
+{% endblock head %}
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Job Completed!</h3>
+            <p class="text-muted">How was your experience with <strong class="text-primary">{{ provider.full_name }}</strong>?</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('close_order', req_id=req.id) }}">
+            
+            <div class="mb-3 text-center">
+                <label class="form-label fw-bold d-block">Rating</label>
+                <div class="rating-css">
+                    <div class="btn-group" role="group" aria-label="Rating">
+                        {% for i in range(1, 6) %}
+                        <input type="radio" class="btn-check" name="rating" id="star{{i}}" value="{{i}}" required>
+                        <label class="btn btn-outline-warning" for="star{{i}}">
+                            {{i}} <i class="bi bi-star-fill"></i>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="comment" class="form-label fw-bold">Review Message</label>
+                <textarea class="form-control" name="comment" id="comment" rows="3" placeholder="Was the service on time? Professional?" required></textarea>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-lg">Submit Review & Close Job</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock body %}
