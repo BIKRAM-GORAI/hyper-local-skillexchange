@@ -1,29 +1,54 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>Place Bid</title>
+    <title>Place a Bid</title>
 {% endblock head %}
 
 {% block body %}
-    <div class="d-flex justify-content-center align-items-center vh-100">
-        <div class="card" style="width: 50rem;"><!-- within the column, this is the column content, a card -->
-          <div class="card-body text-center"><!-- card body -->
-            <h5 class="card-title">{{service.service_type}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{service.budget}}</h6>
-            <p class="card-text">{{service.desc}}</p>
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    
+    <div class="card shadow border-0" style="width: 100%; max-width: 500px;">
+        
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h4 class="mb-0 fw-bold">{{ service.service_type }}</h4>
+            <p class="mb-0 opacity-75">Customer Request</p>
+        </div>
 
+        <div class="card-body p-4">
+            
+            <div class="mb-4 text-center">
+                <h5 class="text-success fw-bold">Budget: ${{ service.budget }}</h5>
+                <p class="text-muted fst-italic">"{{ service.desc }}"</p>
+                <hr>
+            </div>
 
-          </div>
+            <form method="POST" action="{{ url_for('place_bid', serv_id=service.id) }}">
+                
+                <div class="mb-3">
+                    <label for="bid_amount" class="form-label fw-bold">Your Offer Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
+                               placeholder="e.g. {{ service.budget }}" min="0" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="msg" class="form-label fw-bold">Message to Customer</label>
+                    <textarea class="form-control" id="msg" name="msg" rows="4" 
+                              placeholder="Describe why you are the best fit for this job..." required></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                        Confirm Bid
+                    </button>
+                    <a href="{{ url_for('provider_dashboard') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
         </div>
     </div>
-    <form method="POST" action="{{ url_for('place_bid', serv_id=service.id) }}" class="position-fixed bottom-0 start-50 translate-middle-x m-3 z-3 bg-light p-3 rounded">
-        <div class="mb-3">
-            <label for="bid_amount" class="form-label">Bid Amount</label>
-            <input type="number" class="form-control" id="bid_amount" name="bid_amount" min="0" required>
-        </div>
-        <div class="mb-3">
-            <label for="msg" class="form-label">Message</label>
-            <textarea class="form-control" id="msg" name="msg" rows="3" placeholder="Enter your bid message" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Place Bid</button>
-    </form>
+</div>
 {% endblock body %}

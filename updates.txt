@@ -58,3 +58,8 @@ done
 commit 12 Baidyanath
 time 10:30 am 
  UI chages in login register consumer dashboard service request provider dashboard
+
+
+commit 13 BIKRAM GORAI
+TIME - 11:00
+ui changes in viewbids editbids myworks placebid

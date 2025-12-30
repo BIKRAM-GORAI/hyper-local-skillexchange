@@ -5,41 +5,49 @@
 {% endblock head %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-secondary text-white">
-                    <h4>Edit Bid for: {{ service.service_type }}</h4>
-                </div>
-                <div class="card-body">
-                    <p><strong>Customer Budget:</strong> {{ service.budget }}</p>
-                    <p><strong>Description:</strong> {{ service.desc }}</p>
-                    <hr>
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    
+    <div class="card shadow border-0" style="width: 100%; max-width: 500px;">
+        
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h4 class="mb-0 fw-bold">Edit Your Bid</h4>
+            <p class="mb-0 opacity-75">Service: {{ service.service_type }}</p>
+        </div>
 
-                    <form action="{{ url_for('edit_bid', serv_id=service.id) }}" method="POST">
-                        
-                        <div class="mb-3">
-                            <label for="bid_amount" class="form-label">Update Amount</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₹</span>
-                                <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
-                                       value="{{ bid.bid_amount }}" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="msg" class="form-label">Update Note</label>
-                            <textarea class="form-control" id="msg" name="msg" rows="3" required>{{ bid.msg }}</textarea>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">Update Bid</button>
-                            <a href="{{ url_for('provider_dashboard') }}" class="btn btn-outline-danger">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+        <div class="card-body p-4">
+            
+            <div class="mb-4 text-center">
+                <p class="mb-1 text-muted">Customer Budget: <strong>${{ service.budget }}</strong></p>
+                <p class="text-muted fst-italic small">"{{ service.desc }}"</p>
+                <hr>
             </div>
+
+            <form action="{{ url_for('edit_bid', serv_id=service.id) }}" method="POST">
+                
+                <div class="mb-3">
+                    <label for="bid_amount" class="form-label fw-bold">Update Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" class="form-control" id="bid_amount" name="bid_amount" 
+                               value="{{ bid.bid_amount }}" min="0" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="msg" class="form-label fw-bold">Update Note</label>
+                    <textarea class="form-control" id="msg" name="msg" rows="4" required>{{ bid.msg }}</textarea>
+                    <div class="form-text">Refine your pitch to the customer.</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                        Save Changes
+                    </button>
+                    <a href="{{ url_for('provider_dashboard') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

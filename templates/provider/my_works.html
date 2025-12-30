@@ -2,60 +2,104 @@
 {% block head %}
 <title>My Current Jobs</title>
 {% endblock head %}
+
 {% block body %}
 
-<div class="container mt-5">
-    <div class="alert alert-info text-center">
-        <h3>My Active Jobs</h3>
-        <p>These requests have been assigned to you. Please contact the customer to proceed.</p>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top mb-5">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary" href="{{ url_for('provider_dashboard') }}">
+      <i class="bi bi-tools"></i> Dashboard
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+      aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('provider_dashboard') }}">Find Jobs</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active fw-bold" href="#">My Works</a>
+        </li>
+      </ul>
+      <span class="navbar-text">
+        <a href="{{url_for('logout')}}" class="btn btn-outline-danger btn-sm">Logout</a>
+      </span>
+    </div>
+  </div>
+</nav>
+
+<div class="container pb-5">
+
+    <div class="text-center mb-5">
+        <h3 class="fw-bold text-dark">Active Work Orders</h3>
+        <p class="text-muted">Jobs you have won and are currently responsible for.</p>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="row row-cols-1 row-cols-lg-2 g-4 justify-content-center">
 
         {% if jobs|length == 0 %}
-        <div class="col-12 text-center mt-5">
-            <h5 class="text-muted">You have no active jobs right now.</h5>
-            <a href="{{ url_for('provider_dashboard') }}" class="btn btn-primary mt-3">Go to Marketplace</a>
+        <div class="col-12 text-center py-5">
+            <div class="text-muted mb-4">
+                <i class="bi bi-clipboard-x display-1"></i>
+            </div>
+            <h4>No active jobs</h4>
+            <p class="text-muted">You haven't been assigned any new tasks yet.</p>
+            <a href="{{ url_for('provider_dashboard') }}" class="btn btn-primary px-4">Find New Jobs</a>
         </div>
         {% endif %}
 
         {% for req, consumer in jobs %}
         <div class="col">
-            <div class="card border-primary mb-3 shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between">
-                    <span>{{ req.service_title }}</span>
-                    <span class="badge bg-light text-dark">{{ req.service_type }}</span>
+            <div class="card h-100 shadow border-0 overflow-hidden">
+                
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">{{ req.service_type }}</h5>
+                        <span class="badge bg-white text-primary rounded-pill">In Progress</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Customer: {{ consumer.full_name }}</h5>
-                    <p class="card-text">
-                        <strong>Description:</strong> {{ req.desc }}<br>
-                        <strong>Agreed Budget:</strong> ₹{{ req.budget }}
-                    </p>
 
-                    <hr>
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold mb-1">{{ req.service_title }}</h5>
+                    <p class="text-success fw-bold mb-3">Agreed Budget: ₹{{ req.budget }}</p>
+                    <p class="card-text text-muted mb-4">{{ req.desc }}</p>
 
-                    <h6>Contact Details:</h6>
-                    <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item">
-                            <i class="bi bi-envelope"></i> Email: <a href="mailto:{{ consumer.email }}">{{
-                                consumer.email }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-geo-alt"></i> Location Coords: {{ req.con_latitude }}, {{ req.con_longitude
-                            }}
-                        </li>
-                    </ul>
+                    <hr class="text-muted opacity-25">
+
+                    <h6 class="text-uppercase text-muted small fw-bold mb-3">Customer Contact</h6>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-person-fill fs-5 text-secondary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 fw-bold">{{ consumer.full_name }}</p>
+                            <small class="text-muted">Client</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-envelope-fill fs-5 text-secondary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0"><a href="mailto:{{ consumer.email }}" class="text-decoration-none text-dark">{{ consumer.email }}</a></p>
+                            <small class="text-muted">Email Address</small>
+                        </div>
+                    </div>
 
                     <div class="d-grid gap-2">
-                        <a href="https://www.google.com/maps?q={{ req.con_latitude }},{{ req.con_longitude }}"
-                            target="_blank" class="btn btn-outline-success">
-                            Open Location in Google Maps
+                        <a href="https://www.google.com/maps?q={{ req.con_latitude }},{{ req.con_longitude }}" 
+                           target="_blank" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-geo-alt-fill me-2"></i> Navigate to Location
                         </a>
                     </div>
                 </div>
-                <div class="card-footer text-muted">
-                    Job started on: {{ req.created_at.strftime('%Y-%m-%d') }}
+
+                <div class="card-footer bg-light border-0 text-center py-2">
+                    <small class="text-muted">Job Started: {{ req.created_at.strftime('%d %b %Y') }}</small>
                 </div>
             </div>
         </div>

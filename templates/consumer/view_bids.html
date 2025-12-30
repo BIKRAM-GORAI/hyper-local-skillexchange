@@ -1,69 +1,117 @@
 {% extends 'base.html' %}
+
 {% block head %}
 <title>View Bids</title>
 {% endblock head %}
 
 {% block body %}
-<div class="container mt-5">
-    
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">
-            <h3>Bids for: {{ service.service_type }}</h3>
-        </div>
-        <div class="card-body">
-            <h5 class="card-title">{{ service.service_title }}</h5>
-            <p class="card-text">{{ service.desc }}</p>
-            <span class="badge bg-secondary">Original Budget: ₹{{ service.budget }}</span>
-            
-            {% if service.assigned_provider_id %}
-                <div class="alert alert-success mt-3">
-                    <strong>Status:</strong> Assigned (Provider ID: {{ service.assigned_provider_id }})
-                </div>
-            {% else %}
-                <div class="alert alert-warning mt-3">
-                    <strong>Status:</strong> Open for Bids
-                </div>
-            {% endif %}
-        </div>
+
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a href="{{ url_for('consumer_dashboard') }}" class="text-decoration-none text-secondary fw-bold">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <span class="navbar-text fw-bold text-dark">
+            Manage Bids
+        </span>
     </div>
+</nav>
 
-    <h4>Received Offers</h4>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        
-        {% if bid_data|length == 0 %}
-            <div class="col-12">
-                <p class="text-muted">No bids received yet.</p>
-            </div>
-        {% endif %}
-
-        {% for bid, provider in bid_data %}
-        <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">{{ provider.full_name }}</span>
+<div class="container pb-5">
+    
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="card shadow border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="text-primary fw-bold mb-1">{{ service.service_type }}</h5>
+                            <h3 class="fw-bold text-dark mb-3">{{ service.service_title }}</h3>
+                        </div>
+                        {% if service.assigned_provider_id %}
+                            <span class="badge bg-success fs-6 rounded-pill px-3 py-2">
+                                <i class="bi bi-check-circle-fill"></i> Provider Assigned
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark fs-6 rounded-pill px-3 py-2">
+                                <i class="bi bi-hourglass-split"></i> Accepting Bids
+                            </span>
+                        {% endif %}
                     </div>
-                <div class="card-body">
-                    <h2 class="card-title text-success">₹{{ bid.bid_amount }}</h2>
-                    <p class="card-text fst-italic">"{{ bid.msg }}"</p>
-                </div>
-                <div class="card-footer bg-transparent border-top-0">
-                    {% if not service.assigned_provider_id %}
-                        <a href="{{ url_for('accept_bid', bid_id=bid.id) }}" 
-                           class="btn btn-primary w-100">Accept Offer</a>
-                    {% elif service.assigned_provider_id == provider.id %}
-                        <button class="btn btn-success w-100" disabled>Assigned Winner</button>
-                    {% else %}
-                        <button class="btn btn-outline-secondary w-100" disabled>Rejected</button>
-                    {% endif %}
+                    
+                    <p class="text-muted mb-4">{{ service.desc }}</p>
+                    
+                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                        <span class="text-muted me-2">Original Budget:</span>
+                        <span class="fw-bold text-dark fs-5">₹{{ service.budget }}</span>
+                    </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
-        
     </div>
-    
-    <div class="mt-4">
-        <a href="{{ url_for('consumer_dashboard') }}" class="btn btn-link">Back to Dashboard</a>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h4 class="fw-bold mb-4">Received Offers ({{ bid_data|length }})</h4>
+            
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                
+                {% if bid_data|length == 0 %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center py-4">
+                            <h4>No bids yet</h4>
+                            <p class="mb-0">Wait for providers to see your request.</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% for bid, provider in bid_data %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 
+                        {% if service.assigned_provider_id == provider.id %} border-success border-2 shadow {% elif service.assigned_provider_id %} opacity-75 {% endif %}">
+                        
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-fill fs-4 text-secondary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">{{ provider.full_name }}</h5>
+                            <small class="text-muted">Service Provider</small>
+                        </div>
+
+                        <div class="card-body text-center">
+                            <h2 class="text-success fw-bold my-3">₹{{ bid.bid_amount }}</h2>
+                            <div class="p-3 bg-light rounded fst-italic text-muted small">
+                                "{{ bid.msg }}"
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 pb-4">
+                            <div class="d-grid gap-2">
+                                {% if not service.assigned_provider_id %}
+                                    <a href="{{ url_for('accept_bid', bid_id=bid.id) }}" 
+                                       class="btn btn-primary btn-lg"
+                                       onclick="return confirm('Are you sure you want to hire {{ provider.full_name }} for ₹{{ bid.bid_amount }}?');">
+                                       Accept Offer
+                                    </a>
+
+                                {% elif service.assigned_provider_id == provider.id %}
+                                    <button class="btn btn-success btn-lg disabled" disabled>
+                                        <i class="bi bi-check-lg"></i> Hired
+                                    </button>
+
+                                {% else %}
+                                    <button class="btn btn-outline-secondary disabled" disabled>
+                                        Not Selected
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
     </div>
 
 </div>
