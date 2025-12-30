@@ -1,16 +1,31 @@
 # from app import app, db, service_request
+import os
 from flask import Flask, request, render_template, redirect, url_for, session, g, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy.sql import func
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Fix Render postgres:// issue
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/mydatabase.db"
+
 db = SQLAlchemy(app)
-admin_email="admin@name.com"
-admin_password="admin123"
-app.secret_key = 'deb123'  # Keep this secret in production
+
+app.secret_key = os.getenv("SECRET_KEY")
+
+
 
 
 
@@ -98,11 +113,11 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
             flash('Logged in successfully!')
-            print('login suck')
+            #print('login suck')
             # print(user.id)
             # print(session['user_id'])
             if user.is_consumer==True:
-                print('consumer')
+                #print('consumer')
                 return redirect(url_for('consumer_dashboard'))  # Redirect to home/dashboard; adjust as needed
             else:
                 return redirect(url_for('provider_dashboard'))
@@ -122,7 +137,7 @@ def register():
         lat = request.form['latitude']
         lng = request.form['longitude']
         skill=request.form.get('service_type')
-        print("Skill:",skill)
+        #print("Skill:",skill)
         # Hash the password
         password_hash = generate_password_hash(password)
 
@@ -158,7 +173,7 @@ def consumer_dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     id=session['user_id']
-    print(id)
+    #print(id)
     current_user_object = users.query.get(id)
     ser_req=service_request.query.filter_by(consumer_id=id).all()
     # print(ser_req)
@@ -173,7 +188,7 @@ def consumer_dashboard():
                         .distinct().all()
         
         requests_with_bids = [r[0] for r in active_bids_query]
-    print("count: ",len(ser_req),ser_req)
+    #print("count: ",len(ser_req),ser_req)
     return render_template('consumer/consumer_dashboard.html',user=current_user_object,requests=ser_req,requests_with_bids=requests_with_bids)
 
 @app.route('/add_requests',methods=['GET', 'POST'])
@@ -331,9 +346,9 @@ def provider_dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     id=session['user_id']
-    print("id:",id)
+    #print("id:",id)
     current_user_object = users.query.get(id)
-    print(current_user_object.user_skill)
+    #print(current_user_object.user_skill)
     ser_req=service_request.query.filter_by(service_type=current_user_object.user_skill)
     # print(ser_req)
     # print(ser_req[0].service_type,ser_req[1].service_type)
@@ -472,7 +487,7 @@ def logout():
 
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run()
