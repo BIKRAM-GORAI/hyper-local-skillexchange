@@ -12,14 +12,14 @@ load_dotenv()
 app = Flask(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Fix Render postgres:// issue
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is NOT set. App must use PostgreSQL.")
+
+if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-if DATABASE_URL:
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/mydatabase.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
 
 db = SQLAlchemy(app)
 
@@ -103,6 +103,10 @@ class reviews(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 
+with app.app_context():
+    db.create_all()
+
+
 @app.route('/', methods=['GET', 'POST'])#login
 def login():
     if request.method == 'POST':
@@ -113,40 +117,47 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
             flash('Logged in successfully!')
-            #print('login suck')
+            # print('login suck')
             # print(user.id)
             # print(session['user_id'])
             if user.is_consumer==True:
-                #print('consumer')
+                print('consumer')
                 return redirect(url_for('consumer_dashboard'))  # Redirect to home/dashboard; adjust as needed
             else:
                 return redirect(url_for('provider_dashboard'))
         else:
-            flash('Invalid email or password.')
+            flash('Invalid email or password.', 'danger')
     
     return render_template('auth/login.html')
 
-@app.route('/register', methods=['GET', 'POST'])#signup
+@app.route('/register', methods=['GET', 'POST']) #signup
 def register():
     if request.method == "POST":
         email = request.form['email']
+        
+        
+        existing_user = users.query.filter_by(email=email).first()
+        if existing_user:
+            flash('Email already registered. Please login.', 'danger')
+            return redirect(url_for('login'))
+        
+
         password = request.form['password']
         fullname = request.form['fullname']
-        # address = request.form['address']
         role = request.form['role']
         lat = request.form['latitude']
         lng = request.form['longitude']
-        skill=request.form.get('service_type')
-        #print("Skill:",skill)
-        # Hash the password
+        skill = request.form.get('service_type')
+        print("Skill:", skill)
+
+        
         password_hash = generate_password_hash(password)
 
-        # Determine roles
+        
         is_provider = role == 'provider'
         is_consumer = role == 'consumer'
-        # is_admin = email == admin_email
 
-        # Create new user
+        
         new_user = users(
             email=email,
             password_hash=password_hash,
@@ -156,14 +167,14 @@ def register():
             is_provider=is_provider,
             is_consumer=is_consumer,
             user_skill=skill
-            # is_admin=is_admin
         )
 
-        # Add to database
+        
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Registration successful! Please log in.')
+        
+        flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
     return render_template('auth/register.html')
@@ -175,17 +186,17 @@ def consumer_dashboard():
     id=session['user_id']
     #print(id)
     current_user_object = users.query.get(id)
-    ser_req=service_request.query.filter_by(consumer_id=id).all()
-    # print(ser_req)
-    # print(ser_req[0].service_title,ser_req[0].service_type)
-    active_req_ids = [r.id for r in ser_req if r.is_active] 
+    ser_req = service_request.query.filter_by(consumer_id=id, is_active=True).order_by(service_request.created_at.desc()).all()
+    active_req_ids = []
+    for r in ser_req:
+        if r.is_active:
+            active_req_ids.append(r.id)
+ 
     
     requests_with_bids = []
     if active_req_ids:
         # Query bids only for these ACTIVE requests
-        active_bids_query = db.session.query(bids.ser_req_id)\
-                        .filter(bids.ser_req_id.in_(active_req_ids))\
-                        .distinct().all()
+        active_bids_query = db.session.query(bids.ser_req_id).filter(bids.ser_req_id.in_(active_req_ids)).distinct().all()
         
         requests_with_bids = [r[0] for r in active_bids_query]
     #print("count: ",len(ser_req),ser_req)
@@ -348,16 +359,12 @@ def provider_dashboard():
     id=session['user_id']
     #print("id:",id)
     current_user_object = users.query.get(id)
-    #print(current_user_object.user_skill)
-    ser_req=service_request.query.filter_by(service_type=current_user_object.user_skill)
-    # print(ser_req)
-    # print(ser_req[0].service_type,ser_req[1].service_type)
-    # print(ser_req[0].service_title,ser_req[0].service_type)
-    # print(current_user_object.user_skill,ser_req[0].service_type)
-    # print(calculate_distance(ser_req[0].con_latitude,ser_req[0].con_longitude,current_user_object.latitude,current_user_object.longitude))
+    ser_req = service_request.query.filter_by(service_type=current_user_object.user_skill, is_active=True).order_by(service_request.created_at.desc()).all()
     my_bids=bids.query.filter_by(prov_id=id).all()
 
-    bid_request_ids=[bid.ser_req_id for bid in my_bids]
+    bid_request_ids = []
+    for bid in my_bids:
+        bid_request_ids.append(bid.ser_req_id)
     return render_template('provider/provider_dashboard.html',user=current_user_object,requests=ser_req,bid_request_ids=bid_request_ids)
 
 @app.route('/place_bid/<int:serv_id>',methods=['GET', 'POST'])
@@ -442,7 +449,7 @@ def my_works():
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Logged out.')
+    flash('Logged out.','danger')
     return redirect(url_for('login'))
 
 
@@ -487,7 +494,3 @@ def logout():
 
 
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run()

@@ -7,9 +7,7 @@
 
 {% block body %}
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
-    
     <div class="card shadow p-4" style="width: 100%; max-width: 600px;">
-        
         <div class="text-center mb-4">
             <h2 class="fw-bold text-primary">User Signup</h2>
             <p class="text-muted">Create your account to get started</p>
@@ -27,7 +25,6 @@
         {% endwith %}
 
         <form method="POST" action="{{ url_for('register') }}">
-            
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label for="FullName1" class="form-label fw-bold">Full Name</label>
@@ -101,47 +98,33 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // --- ROLE SELECTION LOGIC ---
     const roleSelect = document.getElementById('roleSelect');
     const serviceSelect = document.getElementById('serviceSelect');
     const serviceContainer = document.getElementById('serviceTypeContainer');
 
     function toggleServiceField() {
         if (roleSelect.value === 'provider') {
-            // Show the container
             serviceContainer.style.display = 'block';
-            // Enable and Make Required
             serviceSelect.disabled = false;
             serviceSelect.required = true;
         } else {
-            // Hide the container (Cleaner UI)
             serviceContainer.style.display = 'none';
-            // Disable and Remove Required
             serviceSelect.disabled = true;
             serviceSelect.required = false;
             serviceSelect.value = ""; 
         }
     }
 
-    // Event Listener
     roleSelect.addEventListener('change', toggleServiceField);
-
-    // Run on load (in case of page refresh/cache)
     toggleServiceField();
-
-
-    // --- MAP LOGIC ---
-    // Default center (India)
     var map = L.map('map').setView([22.9734, 78.6569], 5);
 
-    // Tile layer
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     var marker;
-
-    // Click to select location
     map.on('click', function (e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
@@ -151,15 +134,11 @@
         }
 
         marker = L.marker([lat, lng]).addTo(map);
-
-        // Store values in hidden inputs
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
     });
 
-    // Auto-detect user location
     map.locate({ setView: true, maxZoom: 16 });
-
     map.on('locationfound', function (e) {
         if (!marker) {
             marker = L.marker(e.latlng).addTo(map);
@@ -168,5 +147,4 @@
         }
     });
 </script>
-
 {% endblock body %}

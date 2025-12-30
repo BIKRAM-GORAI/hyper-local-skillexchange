@@ -5,9 +5,7 @@
 
 {% block body %}
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
-    
     <div class="card shadow border-0" style="width: 100%; max-width: 500px;">
-        
         <div class="card-header bg-primary text-white text-center py-4">
             <h4 class="mb-0 fw-bold">{{ service.service_type }}</h4>
             <p class="mb-0 opacity-75">Customer Request</p>
@@ -22,7 +20,6 @@
             </div>
 
             <form method="POST" action="{{ url_for('place_bid', serv_id=service.id) }}">
-                
                 <div class="mb-3">
                     <label for="bid_amount" class="form-label fw-bold">Your Offer Amount</label>
                     <div class="input-group">
@@ -31,13 +28,11 @@
                                placeholder="e.g. {{ service.budget }}" min="0" required>
                     </div>
                 </div>
-
                 <div class="mb-4">
                     <label for="msg" class="form-label fw-bold">Message to Customer</label>
                     <textarea class="form-control" id="msg" name="msg" rows="4" 
                               placeholder="Describe why you are the best fit for this job..." required></textarea>
                 </div>
-
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg shadow-sm">
                         Confirm Bid

@@ -3,19 +3,15 @@
 {% block head %}
 <title>Edit Your Bid</title>
 {% endblock head %}
-
 {% block body %}
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
-    
     <div class="card shadow border-0" style="width: 100%; max-width: 500px;">
-        
         <div class="card-header bg-primary text-white text-center py-4">
             <h4 class="mb-0 fw-bold">Edit Your Bid</h4>
             <p class="mb-0 opacity-75">Service: {{ service.service_type }}</p>
         </div>
 
-        <div class="card-body p-4">
-            
+        <div class="card-body p-4"> 
             <div class="mb-4 text-center">
                 <p class="mb-1 text-muted">Customer Budget: <strong>₹{{ service.budget }}</strong></p>
                 <p class="text-muted fst-italic small">"{{ service.desc }}"</p>

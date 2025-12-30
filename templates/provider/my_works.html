@@ -53,7 +53,6 @@
         {% for req, consumer in jobs %}
         <div class="col">
             <div class="card h-100 shadow border-0 overflow-hidden">
-                
                 <div class="card-header bg-primary text-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold">{{ req.service_type }}</h5>
@@ -65,11 +64,8 @@
                     <h5 class="card-title fw-bold mb-1">{{ req.service_title }}</h5>
                     <p class="text-success fw-bold mb-3">Agreed Budget: ₹{{ req.budget }}</p>
                     <p class="card-text text-muted mb-4">{{ req.desc }}</p>
-
                     <hr class="text-muted opacity-25">
-
                     <h6 class="text-uppercase text-muted small fw-bold mb-3">Customer Contact</h6>
-                    
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-light rounded-circle p-2 me-3">
                             <i class="bi bi-person-fill fs-5 text-secondary"></i>
@@ -89,7 +85,6 @@
                             <small class="text-muted">Email Address</small>
                         </div>
                     </div>
-
                     <div class="d-grid gap-2">
                         <a href="https://www.google.com/maps?q={{ req.con_latitude }},{{ req.con_longitude }}" 
                            target="_blank" class="btn btn-outline-primary btn-lg">
@@ -97,7 +92,6 @@
                         </a>
                     </div>
                 </div>
-
                 <div class="card-footer bg-light border-0 text-center py-2">
                     <small class="text-muted">Job Started: {{ req.created_at.strftime('%d %b %Y') }}</small>
                 </div>

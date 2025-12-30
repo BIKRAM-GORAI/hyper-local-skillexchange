@@ -50,7 +50,7 @@
             <div class="col-md-4">
               <label for="budget" class="form-label fw-bold">Estimated Budget</label>
               <div class="input-group">
-                <span class="input-group-text">$</span>
+                <span class="input-group-text">₹</span>
                 <input name="budget" type="number" class="form-control" id="budget" placeholder="100" min="0" required>
               </div>
             </div>
@@ -87,17 +87,12 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  // Default center (India)
   var map = L.map('map').setView([22.9734, 78.6569], 5);
-
-  // Tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
   var marker;
-
-  // Click to select location
   map.on('click', function (e) {
     var lat = e.latlng.lat;
     var lng = e.latlng.lng;
@@ -107,15 +102,11 @@
     }
 
     marker = L.marker([lat, lng]).addTo(map);
-
-    // Store values in hidden inputs
     document.getElementById('latitude').value = lat;
     document.getElementById('longitude').value = lng;
   });
 
-  // Auto-detect user location
   map.locate({ setView: true, maxZoom: 16 });
-
   map.on('locationfound', function (e) {
     if (!marker) {
       marker = L.marker(e.latlng).addTo(map);
