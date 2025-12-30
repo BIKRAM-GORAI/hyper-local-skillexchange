@@ -1,68 +1,91 @@
 {% extends 'base.html' %}
+
 {% block head %}
 <title>Add Service Request</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 {% endblock head %}
 
 {% block body %}
-<div class="alert alert-secondary text-center" role="alert"><strong>
-    <h3>New Parking Lot</h3>
-  </strong></div>
 
-<div class="container mt-5">
-  <form class="row g-3" method="POST" action="{{url_for('add_service_request')}}">
-    <div class="col-md-6">
-      <label for="inputEmail4" class="form-label">Service Title</label>
-      <input name="service_title" type="text" class="form-control" id="inputEmail4" required>
-    </div>
-    <div class="col-md-3">
-      <label for="service_type" class="form-label">Service Type</label>
-      <select name="service_type" class="form-select" aria-label="role" required>
-        <option value="" selected disabled>Choose Service Type</option>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+          <h3 class="fw-bold mb-0">Request a Service</h3>
+          <p class="mb-0 text-white-50">Fill in the details to find a provider near you</p>
+        </div>
+        
+        <div class="card-body p-4">
+          <form class="row g-3" method="POST" action="{{url_for('add_service_request')}}">
+            
+            <div class="col-md-8">
+              <label for="service_title" class="form-label fw-bold">Service Title</label>
+              <input name="service_title" type="text" class="form-control" id="service_title" placeholder="e.g. Leaking Tap Repair" required>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="service_type" class="form-label fw-bold">Service Type</label>
+              <select name="service_type" id="service_type" class="form-select" required>
+                <option value="" selected disabled>Choose...</option>
+                <option value="Electrician">Electrician</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Carpenter">Carpenter</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Mason">Mason</option>
+                <option value="Technician">Technician</option>
+                <option value="Welder">Welder</option>
+                <option value="Maid">Maid</option>
+                <option value="Labour">Labour</option>
+                <option value="Barber">Barber</option>
+                <option value="General Physician">General Physician</option>
+                <option value="Consultant">Consultant</option>
+                <option value="Priest">Priest</option>
+                <option value="House Cleaning">House Cleaning</option>
+                <option value="Chef">Chef</option>
+              </select>
+            </div>
 
-        <option value="Electrician">Electrician</option>
-        <option value="Plumber">Plumber</option>
-        <option value="Carpenter">Carpenter</option>
-        <option value="Teacher">Teacher</option>
-        <option value="Mason">Mason</option>
-        <option value="Technician">Technician</option>
-        <option value="Welder">Welder</option>
-        <option value="Maid">Maid</option>
-        <option value="Labour">Labour</option>
-        <option value="Barber">Barber</option>
-        <option value="General Physician">General Physician</option>
-        <option value="Consultant">Consultant</option>
-        <option value="Priest">Priest</option>
-        <option value="House Cleaning">House Cleaning</option>
-        <option value="Chef">Chef</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="inputAddress" class="form-label">Service Description</label>
-      <textarea name="service_desc" class="form-control" id="inputAddress" rows="3"
-        placeholder="Please describe your service in detail" required></textarea>
-    </div>
-    <div class="col-md-2">
-      <label for="inputMaxSlots" class="form-label">Budget</label>
-      <input name="budget" type="number" class="form-control" id="inputMaxSlots" placeholder="eg: 100" min="0" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Select Your Location</label>
-      <div id="map" style="height: 300px; border-radius: 8px;"></div>
-      <small class="text-muted">
-        Click on the map to set your location
-      </small>
-      <input type="hidden" name="latitude" id="latitude" required>
-      <input type="hidden" name="longitude" id="longitude" required>
+            <div class="col-md-4">
+              <label for="budget" class="form-label fw-bold">Estimated Budget</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input name="budget" type="number" class="form-control" id="budget" placeholder="100" min="0" required>
+              </div>
+            </div>
 
+            <div class="col-12">
+              <label for="service_desc" class="form-label fw-bold">Description</label>
+              <textarea name="service_desc" class="form-control" id="service_desc" rows="3"
+                placeholder="Describe the issue in detail..." required></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Service Location</label>
+              <div id="map" style="height: 300px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+              <div class="form-text text-center mt-2">
+                <i class="bi bi-geo-alt-fill"></i> Click on the map to pinpoint the location.
+              </div>
+              
+              <input type="hidden" name="latitude" id="latitude" required>
+              <input type="hidden" name="longitude" id="longitude" required>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between align-items-center mt-4">
+              <a href="{{url_for('consumer_dashboard')}}" class="btn btn-outline-secondary px-4">Cancel</a>
+              <button type="submit" class="btn btn-primary btn-lg px-5">Submit Request</button>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+      
     </div>
-    <div class="col-12 text-center">
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <a href="{{url_for('consumer_dashboard')}}" class="btn btn-secondary">Cancel</a>
-    </div>
-  </form>
+  </div>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // Default center (India)
   var map = L.map('map').setView([22.9734, 78.6569], 5);
@@ -90,7 +113,7 @@
     document.getElementById('longitude').value = lng;
   });
 
-  // Auto-detect user location (optional but recommended)
+  // Auto-detect user location
   map.locate({ setView: true, maxZoom: 16 });
 
   map.on('locationfound', function (e) {
@@ -101,4 +124,5 @@
     }
   });
 </script>
+
 {% endblock body %}

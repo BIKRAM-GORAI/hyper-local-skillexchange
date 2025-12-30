@@ -55,3 +55,6 @@ done
 ->consumer can now view assigned job in my orders section, with active indication, and now can mark 'as completed' when completed
 done
 
+commit 12 Baidyanath
+time 10:30 am 
+ UI chages in login register consumer dashboard service request provider dashboard

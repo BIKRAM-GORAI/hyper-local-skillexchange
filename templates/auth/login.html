@@ -3,30 +3,55 @@
     <title>Login</title>
 {% endblock head %}
 {% block body %}
-    <h1>User Login</h1>
+    
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        
+        <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+            
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">User Login</h2>
+                <p class="text-muted">Welcome back! Please login to continue.</p>
+            </div>
 
-    {% if warning %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-  <strong>Invalid email or password</strong> Retry!
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endif %}
+            {% if warning %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Invalid email or password</strong> Retry!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
 
-    <div class="container">
-       <form method="POST">
-  <div class="mb-3">
-    <label for="RegisteredEmailID1" class="form-label">Registered Email Id</label>
-    <input name="email" type="email" class="form-control" id="RegisteredEmailID1" aria-describedby="emailHelp">
-  </div>
-  <div class="mb-3">
-    <label for="InputPassword1" class="form-label">Password</label>
-    <input name="password" type="password" class="form-control" id="InputPassword1">
-    <div id="passwordHelp" class="form-text">We'll never share our password with anyone else.</div>
-  </div>
-  <div class="mb-3 form-check">
-    <a href="{{ url_for('register')}}">Create Account?</a>
-  </div>
-  <button type="submit" class="btn btn-primary">Login</button>
-        </form>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="RegisteredEmailID1" class="form-label fw-bold">Email Address</label>
+                    <input name="email" type="email" class="form-control" id="RegisteredEmailID1" aria-describedby="emailHelp" placeholder="name@example.com" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="InputPassword1" class="form-label fw-bold">Password</label>
+                    <input name="password" type="password" class="form-control" id="InputPassword1" placeholder="Enter your password" required>
+                    <div id="passwordHelp" class="form-text">We'll never share your password with anyone else.</div>
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-0">Don't have an account? <a href="{{ url_for('register')}}" class="text-decoration-none">Create Account</a></p>
+                </div>
+            </form>
+        </div>
     </div>
+
 {% endblock body %}

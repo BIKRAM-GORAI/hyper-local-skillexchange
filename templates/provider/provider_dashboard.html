@@ -1,84 +1,113 @@
 {% extends 'base.html' %}
 {% block head %}
-<title>Provider Dashboard Home</title>
+<title>Provider Dashboard</title>
 {% endblock head %}
+
 {% block body %}
-<div class="container-fluid"><!-- Nav bar -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Welcome back {{user.full_name}}</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
-        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
 
-          <li class="nav-item">
-            <a class="nav-link fw-bold" href="{{ url_for('my_works') }}">My Works</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
-          </li>
-        </ul>
-        <span class="navbar-text">
-          <a class="nav-link" href="#">Edit your profile</a>
-        </span>
-      </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary" href="#">
+      <i class="bi bi-tools"></i> Welcome, {{user.full_name}}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+      aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active fw-bold" aria-current="page" href="#">Find Jobs</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('my_works') }}">My Works</a>
+        </li>
+      </ul>
+      <span class="navbar-text">
+        <a href="{{url_for('logout')}}" class="btn btn-outline-danger btn-sm">Logout</a>
+      </span>
     </div>
-  </nav>
-</div>
-<div class="container"><!-- main container -->
-  <div class="alert alert-secondary mt-5 text-center" role="alert"><!-- "parking lots" header -->
-    <strong>
-      <h4>Your Available Services</h4>
-    </strong>
   </div>
-  <div class="container"><!-- this is 4 columns grid -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-      <!--<div class=""row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"">, this is taken from gpt, it makes the grid responsive and g-4 means gap between rows and cols -->
-      {% for req in requests %}
-      {% if distance_km(req.con_latitude, req.con_longitude, user.latitude, user.longitude) <= 10 %} <div class="col">
-        <!-- this is the column -->
+</nav>
 
+<div class="container py-5">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold text-dark">Available Jobs Nearby</h3>
+      <p class="text-muted">Requests within 10km of your location matching your skills.</p>
+    </div>
+  </div>
 
-
-        <div class="card" style="width: 18rem;"><!-- within the column, this is the column content, a card -->
-          <div class="card-body text-center"><!-- card body -->
-            {% if req.id in bid_request_ids %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-              class="bi bi-check2-circle" viewBox="0 0 16 16">
-              <path
-                d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0" />
-              <path
-                d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z" />
-            </svg>
-            {% endif %}
-            <h5 class="card-title">{{req.service_type}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{req.budget}}</h6>
-            <p class="card-text">{{req.desc}}</p>
-            {% if req.id in bid_request_ids %}
-
-            <button class="btn btn-primary disabled" disabled>Place Bid</button>
-
-            <a href="{{url_for('edit_bid', serv_id=req.id)}}" class="btn btn-secondary" role="button">Edit</a>
-            {% else %}
-            <a href="{{url_for('place_bid', serv_id=req.id)}}" class="btn btn-primary" role="button">Place Bid</a>
-            <a href="#" class="btn btn-secondary disabled d-none" role="button">Edit</a>
-            {% endif %}
-          </div>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-
-    </div>
+      {% endfor %}
     {% endif %}
+  {% endwith %}
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    
+    {% for req in requests %}
+      {% if distance_km(req.con_latitude, req.con_longitude, user.latitude, user.longitude) <= 10 %} 
+      <div class="col">
+        
+        <div class="card h-100 shadow-sm border-0 position-relative transition-hover">
+          
+          {% if req.id in bid_request_ids %}
+          <div class="position-absolute top-0 end-0 m-3">
+            <span class="badge bg-success rounded-pill shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16">
+                <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
+                <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
+              </svg>
+              Bid Sent
+            </span>
+          </div>
+          {% endif %}
+
+          <div class="card-body pt-4">
+            <h5 class="card-title fw-bold text-dark">{{ req.service_type }}</h5>
+            
+            <h6 class="card-subtitle mb-3 text-success fw-bold">
+              Budget: ${{ req.budget }}
+            </h6>
+            
+            <p class="card-text text-muted">
+              {{ req.desc }}
+            </p>
+          </div>
+
+          <div class="card-footer bg-transparent border-top-0 pb-4">
+            <div class="d-grid gap-2">
+              {% if req.id in bid_request_ids %}
+                <button class="btn btn-secondary disabled" disabled>Bid Placed</button>
+                <a href="{{url_for('edit_bid', serv_id=req.id)}}" class="btn btn-outline-primary">
+                  Edit My Bid
+                </a>
+              {% else %}
+                <a href="{{url_for('place_bid', serv_id=req.id)}}" class="btn btn-primary">
+                  Place Bid Now
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="col-12 text-center py-5">
+        <h4 class="text-muted">No jobs currently available.</h4>
+        <p>Check back later for new requests.</p>
+      </div>
     {% endfor %}
+
   </div>
 </div>
-</div>
-
 
 {% endblock body %}

@@ -1,68 +1,96 @@
 {% extends 'base.html' %}
 {% block head %}
-<title>Consumer Dashboard Home</title>
+<title>Consumer Dashboard</title>
 {% endblock head %}
+
 {% block body %}
-<div class="container-fluid"><!-- Nav bar -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Welcome back {{user.full_name}}</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
-        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
 
-          <li class="nav-item">
-            <a class="nav-link fw-bold text-primary" href="{{ url_for('my_orders') }}">My Orders</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
-          </li>
-        </ul>
-        <span class="navbar-text">
-          <a class="nav-link" href="#">Edit your profile</a>
-        </span>
-      </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary" href="#">
+      <i class="bi bi-person-circle"></i> Welcome, {{user.full_name}}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+      aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-bold" href="{{ url_for('my_orders') }}">My Orders</a>
+        </li>
+      </ul>
+      <span class="navbar-text">
+        <a href="{{url_for('logout')}}" class="btn btn-outline-danger btn-sm">Logout</a>
+      </span>
     </div>
-  </nav>
-</div>
-<div class="container"><!-- main container -->
-  <div class="alert alert-secondary mt-5 text-center" role="alert"><!-- "parking lots" header -->
-    <strong>
-      <h4>Your Requests</h4>
-    </strong>
   </div>
-  <div class="container"><!-- this is 4 columns grid -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-      <!--<div class=""row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"">, this is taken from gpt, it makes the grid responsive and g-4 means gap between rows and cols -->
-      {% for request in requests %}
-      <div class="col"><!-- this is the column -->
+</nav>
 
+<div class="container py-5">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark">Your Service Requests</h3>
+    </div>
 
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
-        <div class="card" style="width: 18rem;"><!-- within the column, this is the column content, a card -->
-          <div class="card-body text-center"><!-- card body -->
-            <h5 class="card-title">{{request.service_type}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{request.budget}}</h6>
-            <p class="card-text">{{request.desc}}</p>
-            <a href="{{url_for('view_bids',req_id=request.id)}}" class="btn btn-primary" role="button">View Bids</a>
-            <a href="#" class="btn btn-secondary" role="button">Details</a>
-
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
+    
+    {% for request in requests %}
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0 transition-hover">
+        <div class="card-header bg-transparent border-0 pt-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <span class="badge bg-primary rounded-pill">{{ request.service_type }}</span>
+            <span class="text-muted small">{{ request.created_at.strftime('%b %d') }}</span>
           </div>
         </div>
+        
+        <div class="card-body">
+          <h5 class="card-title fw-bold text-dark">{{ request.service_title }}</h5> <h6 class="card-subtitle mb-3 text-success fw-bold">Budget: ₹{{ request.budget }}</h6>
+          <p class="card-text text-muted text-truncate-3" style="min-height: 3rem;">
+            {{ request.desc }}
+          </p>
+        </div>
 
+        <div class="card-footer bg-transparent border-top-0 pb-3">
+          <div class="d-grid gap-2">
+            <a href="{{url_for('view_bids', req_id=request.id)}}" class="btn btn-primary">
+              View Bids
+            </a>
+            </div>
+        </div>
       </div>
-      {% endfor %}
     </div>
+    
+    {% else %}
+    <div class="col-12 text-center py-5">
+      <div class="text-muted">
+        <h4>No requests yet!</h4>
+        <p>Post a new service request to get started.</p>
+      </div>
+    </div>
+    {% endfor %}
+
   </div>
 </div>
+
 <a href="{{url_for('add_service_request')}}"
-  class="btn btn-lg btn-secondary position-fixed bottom-0 start-50 translate-middle-x m-3 z-3">+ Add Request</a>
+   class="btn btn-lg btn-dark rounded-pill position-fixed bottom-0 start-50 translate-middle-x m-4 shadow z-3 px-4 fw-bold">
+  <span class="fs-5">+</span> New Request
+</a>
 
 {% endblock body %}

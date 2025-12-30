@@ -1,73 +1,101 @@
 {% extends 'base.html' %}
+
 {% block head %}
-<title>register</title>
+<title>Create Account</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 {% endblock head %}
 
 {% block body %}
-<h1>User Signup</h1>
-<div class="container">
-    <form method="POST" action="{{ url_for('register') }}">
-        <div class="mb-3">
-            <label for="EmailID1" class="form-label">Email Id</label>
-            <input name="email" type="email" class="form-control" id="EmailID1" aria-describedby="emailHelp" required>
-        </div>
-        <div class="mb-3">
-            <label for="CreatePassword1" class="form-label">Password</label>
-            <input name="password" type="password" class="form-control" id="CreatePassword1" required>
-        </div>
-        <div class="mb-3">
-            <label for="FullName1" class="form-label">Full Name</label>
-            <input name="fullname" type="text" class="form-control" id="FullName1" required>
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    
+    <div class="card shadow p-4" style="width: 100%; max-width: 600px;">
+        
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">User Signup</h2>
+            <p class="text-muted">Create your account to get started</p>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Select Your Location</label>
-            <div id="map" style="height: 300px; border-radius: 8px;"></div>
-            <small class="text-muted">
-                Click on the map to set your location
-            </small>
-            <input type="hidden" name="latitude" id="latitude" required>
-            <input type="hidden" name="longitude" id="longitude" required>
-        </div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-        <div class="mb-3">
-            <label for="roleSelect" class="form-label">Role</label>
-            <select name="role" class="form-select" id="roleSelect" aria-label="role" required>
-                <option value="" selected disabled>Select Role</option>
-                <option value="consumer">Consumer</option>
-                <option value="provider">Provider</option>
-            </select>
-        </div>
+        <form method="POST" action="{{ url_for('register') }}">
+            
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="FullName1" class="form-label fw-bold">Full Name</label>
+                    <input name="fullname" type="text" class="form-control" id="FullName1" placeholder="John Doe" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="EmailID1" class="form-label fw-bold">Email Address</label>
+                    <input name="email" type="email" class="form-control" id="EmailID1" placeholder="name@example.com" required>
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label for="serviceSelect" class="form-label">Service Type</label>
-            <select name="service_type" class="form-select" id="serviceSelect" aria-label="service type" required>
-                <option value="" selected disabled>Choose Service Type</option>
-                <option value="Electrician">Electrician</option>
-                <option value="Plumber">Plumber</option>
-                <option value="Carpenter">Carpenter</option>
-                <option value="Teacher">Teacher</option>
-                <option value="Mason">Mason</option>
-                <option value="Technician">Technician</option>
-                <option value="Welder">Welder</option>
-                <option value="Maid">Maid</option>
-                <option value="Labour">Labour</option>
-                <option value="Barber">Barber</option>
-                <option value="General Physician">General Physician</option>
-                <option value="Consultant">Consultant</option>
-                <option value="Priest">Priest</option>
-                <option value="House Cleaning">House Cleaning</option>
-                <option value="Chef">Chef</option>
-            </select>
-        </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="CreatePassword1" class="form-label fw-bold">Password</label>
+                    <input name="password" type="password" class="form-control" id="CreatePassword1" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="roleSelect" class="form-label fw-bold">I want to...</label>
+                    <select name="role" class="form-select" id="roleSelect" aria-label="role" required>
+                        <option value="" selected disabled>Select Role</option>
+                        <option value="consumer">Hire Someone (Consumer)</option>
+                        <option value="provider">Offer Services (Provider)</option>
+                    </select>
+                </div>
+            </div>
 
-        <br>
-        <button type="submit" class="btn btn-primary">Register</button>
-        <div class="mb-3">
-            <a href="{{ url_for('login')}}">Already have an account?</a>
-        </div>
-    </form>
+            <div class="mb-3" id="serviceTypeContainer" style="display: none;">
+                <label for="serviceSelect" class="form-label fw-bold">Service Type</label>
+                <select name="service_type" class="form-select" id="serviceSelect" aria-label="service type">
+                    <option value="" selected disabled>Choose Service Type</option>
+                    <option value="Electrician">Electrician</option>
+                    <option value="Plumber">Plumber</option>
+                    <option value="Carpenter">Carpenter</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Mason">Mason</option>
+                    <option value="Technician">Technician</option>
+                    <option value="Welder">Welder</option>
+                    <option value="Maid">Maid</option>
+                    <option value="Labour">Labour</option>
+                    <option value="Barber">Barber</option>
+                    <option value="General Physician">General Physician</option>
+                    <option value="Consultant">Consultant</option>
+                    <option value="Priest">Priest</option>
+                    <option value="House Cleaning">House Cleaning</option>
+                    <option value="Chef">Chef</option>
+                </select>
+                <div class="form-text">Required for providers only.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Set Your Location</label>
+                <div id="map" style="height: 250px; border-radius: 8px; border: 1px solid #ced4da;"></div>
+                <small class="text-muted text-center d-block mt-1">
+                    Click the map to pin your location
+                </small>
+                <input type="hidden" name="latitude" id="latitude" required>
+                <input type="hidden" name="longitude" id="longitude" required>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="submit" class="btn btn-primary btn-lg">Register</button>
+            </div>
+
+            <div class="text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('login')}}" class="text-decoration-none">Login here</a></p>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -76,31 +104,31 @@
     // --- ROLE SELECTION LOGIC ---
     const roleSelect = document.getElementById('roleSelect');
     const serviceSelect = document.getElementById('serviceSelect');
+    const serviceContainer = document.getElementById('serviceTypeContainer');
 
-    // Run this function whenever the role changes
-    roleSelect.addEventListener('change', function () {
-        if (this.value === 'consumer') {
-            // Disable service selection
-            serviceSelect.disabled = true;
-            // Remove 'required' attribute so form can submit without it
-            serviceSelect.required = false;
-            // Reset value to empty
-            serviceSelect.value = "";
-        } else if (this.value === 'provider') {
-            // Enable service selection
+    function toggleServiceField() {
+        if (roleSelect.value === 'provider') {
+            // Show the container
+            serviceContainer.style.display = 'block';
+            // Enable and Make Required
             serviceSelect.disabled = false;
-            // Make it required
             serviceSelect.required = true;
+        } else {
+            // Hide the container (Cleaner UI)
+            serviceContainer.style.display = 'none';
+            // Disable and Remove Required
+            serviceSelect.disabled = true;
+            serviceSelect.required = false;
+            serviceSelect.value = ""; 
         }
-    });
-
-    // Run once on page load to ensure correct state (e.g. if browser cached the input)
-    // Initialize as disabled by default until user picks a role
-    if (roleSelect.value === 'provider') {
-        serviceSelect.disabled = false;
-    } else {
-        serviceSelect.disabled = true;
     }
+
+    // Event Listener
+    roleSelect.addEventListener('change', toggleServiceField);
+
+    // Run on load (in case of page refresh/cache)
+    toggleServiceField();
+
 
     // --- MAP LOGIC ---
     // Default center (India)
